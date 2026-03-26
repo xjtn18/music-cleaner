@@ -1,166 +1,166 @@
 [
   {
-    "name": "delete key-bpm tags",
+    "name": "removes trailing KBPM from intro dirty filename",
     "input": "50 Cent - I Get It In (Intro Dirty) 1A 103",
     "expected": "50 Cent - I Get It In (Intro - Dirty)"
   },
   {
-    "name": "replace comma and ampersand with x",
+    "name": "normalizes artist separators before dash",
     "input": "Akon ft J Money, Black Frost & Gotye - Used To Know (Intro Dirty)",
     "expected": "Akon ft J Money x Black Frost x Gotye - Used To Know (Intro - Dirty)"
   },
   {
-    "name": "feat to ft",
+    "name": "formats intro clean without changing existing ft",
     "input": "2Pac ft Anthony Hamilton - Thugz Mansion (Intro Clean)",
     "expected": "2Pac ft Anthony Hamilton - Thugz Mansion (Intro - Clean)"
   },
   {
-    "name": "vs normalization replaces Blend with Segue",
+    "name": "replaces blend with segue when title contains vs",
     "input": "50 Cent & Nate Dogg vs Ayra Starr - 21 Questions (Triple A Edit 'Rush' Blend) (Dirty Extended)",
     "expected": "50 Cent x Nate Dogg vs Ayra Starr - 21 Questions (Triple A Edit 'Rush') (Segue) (Intro - Dirty)"
   },
   {
-    "name": "slam intro to Slam Edit",
+    "name": "removes club killers and converts slam intro to slam edit",
     "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Club Killers Slam Intro) Dirty 8A 128",
     "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Slam Edit) (Dirty)"
   },
   {
-    "name": "clap intro to Clapapella",
+    "name": "splits dj name from clap intro and maps to clapapella",
     "input": "Don Toliver - Body (DJ Nasa Clap Intro) (Dirty Extended)",
     "expected": "Don Toliver - Body (DJ Nasa) (Clapapella) (Intro - Dirty)"
   },
   {
-    "name": "segway to Segue",
+    "name": "keeps custom segue tag and adds dirty edit from loose text",
     "input": "310babii, Trap Dickey & Key Glock - Soak City vs Down South (Smassh Wordplay Segue) Dirty 1A 103",
     "expected": "310babii x Trap Dickey x Key Glock - Soak City vs Down South (Smassh Wordplay) (Segue) (Dirty)"
   },
   {
-    "name": "Dirty Extended",
+    "name": "maps dirty extended to intro dirty",
     "input": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys') (Dirty Extended)",
     "expected": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys') (Intro - Dirty)"
   },
   {
-    "name": "Clean Extended",
+    "name": "maps clean extended to intro clean",
     "input": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys') (Clean Extended)",
     "expected": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys') (Intro - Clean)"
   },
   {
-    "name": "remove CK",
+    "name": "removes CK prefix from intro clean tag",
     "input": "A Boogie Wit Da Hoodie - Get Away (CK Intro - Clean) 9A 93",
     "expected": "A Boogie Wit Da Hoodie - Get Away (Intro - Clean)"
   },
   {
-    "name": "CK with dirty",
+    "name": "removes CK prefix from intro dirty tag",
     "input": "Arizona Zervas ft Wiz Khalifa - GOING UP (CK Intro - Dirty) 12A 93",
     "expected": "Arizona Zervas ft Wiz Khalifa - GOING UP (Intro - Dirty)"
   },
   {
-    "name": "intro dirty formats correctly",
+    "name": "formats intro dirty with hyphen",
     "input": "50 Cent - I Get It In (Intro Dirty)",
     "expected": "50 Cent - I Get It In (Intro - Dirty)"
   },
   {
-    "name": "intro clean formats correctly",
+    "name": "formats intro clean with hyphen",
     "input": "50 Cent - I Get It In (Intro Clean)",
     "expected": "50 Cent - I Get It In (Intro - Clean)"
   },
   {
-    "name": "trans number swap",
+    "name": "splits transition vendor tag and quick hit clean edit",
     "input": "50 Cent ft Governor - Do You Think About Me (Rob Rivera Transition 126-94) (Clean Short Edit)",
     "expected": "50 Cent ft Governor - Do You Think About Me (Rob Rivera) (126 - 94 Transition) (Quick Hit Clean)"
   },
   {
-    "name": "dash between numbers spacing",
+    "name": "normalizes trans shorthand and numeric spacing",
     "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Club Killers 100-128 Trans) Clean 8A",
     "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (100 - 128 Transition) (Clean)"
   },
   {
-    "name": "explicit: Ty Dolla Sign to Ty Dolla $ign",
+    "name": "applies explicit artist rename for Ty Dolla Sign",
     "input": "Bizzy Crook & Ty Dolla Sign - What Do You Like (Intro Clean)",
     "expected": "Bizzy Crook x Ty Dolla $ign - What Do You Like (Intro - Clean)"
   },
   {
-    "name": "explicit: Dr Dre to Dr. Dre",
+    "name": "applies explicit artist rename for Dr Dre",
     "input": "Dr Dre - Song",
     "expected": "Dr. Dre - Song"
   },
   {
-    "name": "Hype Intro preserved",
+    "name": "wraps loose clean text after custom dj tag",
     "input": "J Balvin, Ryan Castro & DJ Snake - Tonto (DJ OD) Clean 4A 98",
     "expected": "J Balvin x Ryan Castro x DJ Snake - Tonto (DJ OD) (Clean)"
   },
   {
-    "name": "Epic Intro preserved",
+    "name": "drops epic intro text and keeps vendor with intro clean",
     "input": "Clipse ft Kendrick Lamar - Chains & Whips (DJ Nasa Epic Intro) (Clean Extended)",
     "expected": "Clipse ft Kendrick Lamar - Chains & Whips (DJ Nasa) (Intro - Clean)"
   },
   {
-    "name": "Acapella Intro",
+    "name": "splits vendor from acapella intro and maps to acapella in",
     "input": "Don Toliver - Body (Muzik Junkies Acapella Intro) (Clean Extended)",
     "expected": "Don Toliver - Body (Muzik Junkies) (Acapella In) (Intro - Clean)"
   },
   {
-    "name": "Club Edit preserved",
+    "name": "preserves custom club edit and wraps trailing clean",
     "input": "Wisin & Yandel - Mirala Bien (HITMEN Club Edit) Clean 12A 96",
     "expected": "Wisin x Yandel - Mirala Bien (HITMEN Club Edit) (Clean)"
   },
   {
-    "name": "Quick Hit preserved",
+    "name": "preserves existing quick hit clean edit",
     "input": "2Pac ft Anthony Hamilton - Thugz Mansion (Quick Hit Clean)",
     "expected": "2Pac ft Anthony Hamilton - Thugz Mansion (Quick Hit Clean)"
   },
   {
-    "name": "Short Edit preserved",
+    "name": "maps clean short edit to quick hit clean",
     "input": "Cardi B - Errtime (Triple A Edit 'Snl Intro') (Clean Short Edit)",
     "expected": "Cardi B - Errtime (Triple A Edit 'Snl Intro') (Quick Hit Clean)"
   },
   {
-    "name": "Radio Edit preserved",
+    "name": "maps clean radio edit to plain clean",
     "input": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys' Edit) (Clean Radio Edit)",
     "expected": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys' Edit) (Clean)"
   },
   {
-    "name": "Break Intro preserved",
+    "name": "drops break intro text but keeps vendor phrase and intro clean",
     "input": "Compton Av, Steelz, Blueface & Lola Brooke ft Natalie Nunn & India Love - YAYA (SheMix) (Muzik Junkies 4 Bar Break Intro) (Clean Extended)",
     "expected": "Compton Av x Steelz x Blueface x Lola Brooke ft Natalie Nunn x India Love - YAYA (SheMix) (Muzik Junkies 4 Bar) (Intro - Clean)"
   },
   {
-    "name": "Jump Off Edit preserved",
+    "name": "splits vendor from jump off edit and keeps clean at end",
     "input": "Cheyenne Giles ft Kris Kiss - Been Good (DJ Nasa Jump Off Edit) (Clean)",
     "expected": "Cheyenne Giles ft Kris Kiss - Been Good (DJ Nasa) (Jump Off Edit) (Clean)"
   },
   {
-    "name": "Set Edit preserved",
+    "name": "preserves custom set edit and maps radio edit to clean",
     "input": "Cheyenne Giles, Knock2 & John Newman - LOVE ME SOME SUGAR (Cheyenne Giles Set Edit) (Clean Radio Edit)",
     "expected": "Cheyenne Giles x Knock2 x John Newman - LOVE ME SOME SUGAR (Cheyenne Giles Set Edit) (Clean)"
   },
   {
-    "name": "Transition with 3 digit numbers",
+    "name": "handles three digit transition range with quick hit clean",
     "input": "Cheyenne Giles, Knock2 & John Newman - LOVE ME SOME SUGAR (DJ Nasa 105-130 Transition) (Clean Short Edit)",
     "expected": "Cheyenne Giles x Knock2 x John Newman - LOVE ME SOME SUGAR (DJ Nasa) (105 - 130 Transition) (Quick Hit Clean)"
   },
   {
-    "name": "Remix tag",
+    "name": "preserves custom remix tag and maps short edit to quick hit",
     "input": "Devault - Feels Like Us (Cheyenne Giles Remix) (Clean Short Edit)",
     "expected": "Devault - Feels Like Us (Cheyenne Giles Remix) (Quick Hit Clean)"
   },
   {
-    "name": "VIP Edit preserved",
+    "name": "splits VIP quick hitter edit into VIP tag and quick hit clean",
     "input": "David Guetta, Alphaville & Ava Max - Forever Young (Even Steve VIP Quick Hitter Edit) Clean 8A 130",
     "expected": "David Guetta x Alphaville x Ava Max - Forever Young (Even Steve VIP) (Quick Hit Clean)"
   },
   {
-    "name": "Extended Mix preserved",
+    "name": "maps extended mix to ext and wraps clean",
     "input": "John Summit & Julia Wolf - WITH ME (Extended Mix) Clean 4A 145",
     "expected": "John Summit x Julia Wolf - WITH ME (Ext) (Clean)"
   },
   {
-    "name": "Clean CK Cut preserved",
+    "name": "maps clean CK cut to quick hit clean",
     "input": "Deorro - Un Poquito Mas (Clean CK Cut) 9A 140",
     "expected": "Deorro - Un Poquito Mas (Quick Hit Clean)"
   },
   {
-    "name": "vs with Edit",
+    "name": "adds segue for vs while preserving custom edit",
     "input": "BigXthaPlug ft Ella Langle vs BeatBreaker - Hell At Night (BRDWY Edit) (Clean Extended)",
     "expected": "BigXthaPlug ft Ella Langle vs BeatBreaker - Hell At Night (BRDWY Edit) (Segue) (Intro - Clean)"
   }
