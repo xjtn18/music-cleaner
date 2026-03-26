@@ -1,15 +1,16 @@
 # VOCABULARY:
 
-artist -> the artist's name
-song -> the song's name
-remix tag -> one of "segue", "mash", "blend", "remix", "mashup", "segway", "vs"
-edit tag -> some phrase containing "Clean" or "Dirty", such as, "Intro - Dirty" (we dont have an exhaustive list, hopefully you can infer it from the test cases)
-KBPM -> the camelot wheel code and the BPM
+- artist -> the artist's name
+- song -> the song's name
+- remix tag -> one of "segue", "mash", "blend", "remix", "mashup", "segway", "vs"
+- edit tag -> some phrase containing "Clean" or "Dirty", such as, "Intro - Dirty" (we dont have an exhaustive list, hopefully you can infer it from the test cases)
+- KBPM -> the camelot wheel code and the BPM
 
 
 # GENERAL FILE NAMING OVERVIEW:
 
 Every file, before cleaning, should roughly be the following format (curly braces are for placeholders):
+
     {artist} - {song} ({remix tag}) ({edit tag}) {KBPM}
 
 Note that, in some cases, the remix tag and the edit are together in the same set of parentheses -> we prefer them to always be split in the cleaned version.
@@ -82,13 +83,14 @@ Implement the following rules into `clean.py`, unless they say "[Implemented]" b
 
 - Other edit types (Quick Hit, Short Edit, Radio Edit, Club Edit, etc.) should be preserved but wrapped in parens
 
-(Explicit hard-coded formatting rules)
- - AAP Rocky, ASAP Rocky -> A$AP Rocky
- - Ty Dolla Sign -> Ty Dolla $ign
- - Too Short -> Too $hort
- - Schoolboy Q -> ScHoolboy Q
- - JayZ -> Jay-Z
- - Biggie, Biggie Smalls -> The Notorious B.I.G.
- - Dr Dre -> Dr. Dre
+Explicit hard-coded formatting rules:
+
+- AAP Rocky, ASAP Rocky -> A$AP Rocky
+- Ty Dolla Sign -> Ty Dolla $ign
+- Too Short -> Too $hort
+- Schoolboy Q -> ScHoolboy Q
+- JayZ -> Jay-Z
+- Biggie, Biggie Smalls -> The Notorious B.I.G.
+- Dr Dre -> Dr. Dre
 
 - there should be no instances of nested parens, and no open parens without a closer and vice-versa
