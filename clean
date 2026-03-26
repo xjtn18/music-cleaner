@@ -1,11 +1,25 @@
+#!/usr/bin/env python3
+
+import base64
 import json
 import os
 import re
 import sys
+import zlib
+from datetime import datetime
+from difflib import SequenceMatcher
 from dataclasses import dataclass, field
 
 
 GENERIC_REMIX_TAGS = {"Segue", "Mash", "Remix"}
+
+COLOR_RESET = "\033[0m"
+COLOR_DIM = "\033[2m"
+COLOR_RED = "\033[31m"
+COLOR_GREEN = "\033[32m"
+COLOR_CYAN = "\033[36m"
+ANSI_PATTERN = re.compile(r"\x1b\[[0-9;]*m")
+REVERT_DATA_PREFIX = "REVERT_DATA_V1:"
 
 
 @dataclass
@@ -460,20 +474,187 @@ def clean_filename(filename):
     return cleaned.strip()
 
 
+def clean_filesystem_name(filename):
+    stem, ext = os.path.splitext(filename)
+    cleaned_stem = clean_filename(stem)
+    return f"{cleaned_stem}{ext}"
+
+
+def format_preview_block(original, cleaned, before_label="before", after_label="after"):
+    before_text, after_text = build_inline_diff(original, cleaned)
+    return "\n".join(
+        [
+            f"  {COLOR_RED}{before_label}:{COLOR_RESET} {before_text}",
+            f"  {COLOR_GREEN}{after_label}: {COLOR_RESET} {after_text}",
+        ]
+    )
+
+
+def build_revert_footer(directory, operations):
+    payload = json.dumps({"directory": directory, "operations": operations}, separators=(",", ":"))
+    compressed = zlib.compress(payload.encode("utf-8"))
+    encoded = base64.b64encode(compressed).decode("ascii")
+    return f"{REVERT_DATA_PREFIX}{encoded}"
+
+
+def write_ansi_log(directory, entries, operations, changes_made):
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    logs_dir = os.path.join(os.getcwd(), "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    log_path = os.path.join(logs_dir, f"rename-log-{timestamp}")
+    created_at = datetime.now().isoformat(timespec='seconds')
+    header = [
+        f"{COLOR_GREEN}RENAME LOG{COLOR_RESET}",
+        f"{COLOR_DIM}Directory: {directory}{COLOR_RESET}",
+        f"{COLOR_DIM}Created:   {created_at}{COLOR_RESET}",
+        f"{COLOR_DIM}Renamed:   {changes_made}{COLOR_RESET}",
+    ]
+    footer = build_revert_footer(directory, operations)
+    with open(log_path, "w", encoding="utf-8") as handle:
+        handle.write("\n".join(header))
+        handle.write("\n\n")
+        handle.write("\n\n".join(entries))
+        handle.write("\n\n")
+        handle.write(footer + "\n")
+    return log_path
+
+
+def strip_ansi(text):
+    return ANSI_PATTERN.sub("", text)
+
+
+def parse_revert_log(log_file):
+    with open(log_file, "r", encoding="utf-8") as handle:
+        contents = handle.read()
+
+    clean_contents = strip_ansi(contents)
+    footer_line = None
+    for line in reversed(clean_contents.splitlines()):
+        if line.startswith(REVERT_DATA_PREFIX):
+            footer_line = line
+            break
+
+    if not footer_line:
+        raise ValueError("Log file does not contain revert metadata")
+
+    encoded = footer_line[len(REVERT_DATA_PREFIX):]
+    payload = zlib.decompress(base64.b64decode(encoded)).decode("utf-8")
+    data = json.loads(payload)
+    return data["directory"], data["operations"]
+
+
+def get_latest_log_file():
+    logs_dir = os.path.join(os.getcwd(), "logs")
+    if not os.path.isdir(logs_dir):
+        raise FileNotFoundError("No logs directory found")
+
+    log_files = [
+        os.path.join(logs_dir, name)
+        for name in os.listdir(logs_dir)
+        if re.fullmatch(r"rename-log-\d{8}-\d{6}-\d{6}", name)
+    ]
+
+    if not log_files:
+        raise FileNotFoundError("No rename logs found in logs directory")
+
+    return max(log_files, key=os.path.basename)
+
+
+def tokenize_diff_text(text):
+    return re.findall(r"\s+|\(|\)|\[[^\]]*\]|[^\s()]+", text)
+
+
+def build_inline_diff(original, cleaned):
+    original_tokens = tokenize_diff_text(original)
+    cleaned_tokens = tokenize_diff_text(cleaned)
+    matcher = SequenceMatcher(a=original_tokens, b=cleaned_tokens)
+
+    before_parts = []
+    after_parts = []
+
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        old_chunk = "".join(original_tokens[i1:i2])
+        new_chunk = "".join(cleaned_tokens[j1:j2])
+
+        if tag == "equal":
+            before_parts.append(old_chunk)
+            after_parts.append(new_chunk)
+        elif tag == "delete":
+            before_parts.append(f"{COLOR_RED}{old_chunk}{COLOR_RESET}")
+        elif tag == "insert":
+            after_parts.append(f"{COLOR_GREEN}{new_chunk}{COLOR_RESET}")
+        elif tag == "replace":
+            before_parts.append(f"{COLOR_RED}{old_chunk}{COLOR_RESET}")
+            after_parts.append(f"{COLOR_GREEN}{new_chunk}{COLOR_RESET}")
+
+    return "".join(before_parts), "".join(after_parts)
+
+
 def process_directory(directory, dry_run=True):
     changes_made = 0
+    log_entries = []
+    log_operations = []
     for root, _, files in os.walk(directory):
         for filename in files:
             original_path = os.path.join(root, filename)
-            cleaned = clean_filename(filename)
+            cleaned = clean_filesystem_name(filename)
             if cleaned != filename:
                 new_path = os.path.join(root, cleaned)
-                mode = "[DRY RUN] " if dry_run else ""
-                print(f"{mode}{filename} -> {cleaned}")
+                original_stem, _ = os.path.splitext(filename)
+                cleaned_stem, _ = os.path.splitext(cleaned)
+                preview_block = format_preview_block(original_stem, cleaned_stem)
+                if dry_run:
+                    print(preview_block)
+                    print()
                 if not dry_run:
                     os.rename(original_path, new_path)
+                    log_entries.append(preview_block)
+                    log_operations.append({
+                        "before": filename,
+                        "after": cleaned,
+                    })
                 changes_made += 1
-    return changes_made
+    log_path = None
+    if not dry_run and log_entries:
+        log_path = write_ansi_log(directory, log_entries, log_operations, changes_made)
+    return changes_made, log_path
+
+
+def revert_from_log(log_file, dry_run=True):
+    directory, operations = parse_revert_log(log_file)
+    changes_made = 0
+    log_entries = []
+    revert_operations = []
+
+    for operation in operations:
+        current_name = operation["after"]
+        reverted_name = operation["before"]
+        current_path = os.path.join(directory, current_name)
+        reverted_path = os.path.join(directory, reverted_name)
+
+        if not os.path.exists(current_path):
+            print(f"{COLOR_RED}Missing current file:{COLOR_RESET} {current_path}")
+            continue
+
+        current_stem, _ = os.path.splitext(current_name)
+        reverted_stem, _ = os.path.splitext(reverted_name)
+        preview_block = format_preview_block(current_stem, reverted_stem, before_label="current", after_label="revert")
+
+        if not dry_run:
+            os.rename(current_path, reverted_path)
+            log_entries.append(preview_block)
+            revert_operations.append({
+                "before": current_name,
+                "after": reverted_name,
+            })
+
+        changes_made += 1
+
+    log_path = None
+    if not dry_run and log_entries:
+        log_path = write_ansi_log(directory, log_entries, revert_operations, changes_made)
+
+    return changes_made, log_path, directory
 
 
 def run_tests(test_file):
@@ -513,24 +694,50 @@ def main():
         success = run_tests(test_file)
         sys.exit(0 if success else 1)
 
+    if len(sys.argv) > 1 and sys.argv[1] == "--revert":
+        log_file = None
+        if len(sys.argv) > 2:
+            log_file = sys.argv[2]
+
+        if log_file is None:
+            try:
+                log_file = get_latest_log_file()
+            except FileNotFoundError as exc:
+                print(f"Error: {exc}")
+                sys.exit(1)
+
+        print(f"{COLOR_CYAN}REVERT{COLOR_RESET} {COLOR_DIM}Applying revert from {log_file}{COLOR_RESET}")
+        changes, log_path, directory = revert_from_log(log_file, dry_run=False)
+        print(f"\n{changes} files reverted in {directory}.")
+        if log_path:
+            print(f"ANSI log written to {log_path}")
+        return
+
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  py clean.py --test [file]     Run tests")
-        print("  py clean.py <dir>             Dry run (preview changes)")
-        print("  py clean.py <dir> --run      Actually rename files")
+        print("  ./clean --test [file]             Run tests")
+        print("  ./clean <dir>                     Dry run (preview changes)")
+        print("  ./clean <dir> --run               Actually rename files")
+        print("  ./clean --revert [log]            Revert from log or latest log")
         sys.exit(1)
 
     target_dir = sys.argv[1]
     dry_run = "--run" not in sys.argv
 
     if dry_run:
-        print("[DRY RUN] No changes will be made. Use --run to apply changes.")
+        print(f"{COLOR_CYAN}DRY RUN{COLOR_RESET} {COLOR_DIM}No changes will be made. Use --run to apply changes.{COLOR_RESET}")
         print()
+    else:
+        print(f"{COLOR_CYAN}RUN{COLOR_RESET} {COLOR_DIM}Renaming files in {target_dir}{COLOR_RESET}")
 
-    changes = process_directory(target_dir, dry_run=dry_run)
+    changes, log_path = process_directory(target_dir, dry_run=dry_run)
 
     if dry_run:
         print(f"\n{changes} files would be renamed. Run with --run to apply.")
+    else:
+        print(f"\n{changes} files renamed.")
+        if log_path:
+            print(f"ANSI log written to {log_path}")
 
 
 if __name__ == "__main__":
