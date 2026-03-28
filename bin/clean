@@ -717,6 +717,11 @@ def process_directory(directory, dry_run=True):
                 original_stem, _ = os.path.splitext(filename)
                 cleaned_stem, _ = os.path.splitext(cleaned)
                 preview_block = format_preview_block(original_stem, cleaned_stem)
+                if os.path.exists(new_path):
+                    print(preview_block)
+                    print(f"{COLOR_RED}Skipped:{COLOR_RESET} target already exists -> {new_path}")
+                    print()
+                    continue
                 if dry_run:
                     print(preview_block)
                     print()
