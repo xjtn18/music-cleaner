@@ -9,6 +9,7 @@ import zlib
 from datetime import datetime
 from difflib import SequenceMatcher
 from dataclasses import dataclass, field
+from pathlib import Path
 
 
 GENERIC_REMIX_TAGS = {"Segue", "Mash", "Remix"}
@@ -20,6 +21,9 @@ COLOR_GREEN = "\033[32m"
 COLOR_CYAN = "\033[36m"
 ANSI_PATTERN = re.compile(r"\x1b\[[0-9;]*m")
 REVERT_DATA_PREFIX = "REVERT_DATA_V1:"
+SCRIPT_PATH = Path(__file__).resolve()
+BIN_DIR = SCRIPT_PATH.parent
+REPO_ROOT = BIN_DIR.parent
 
 
 @dataclass
@@ -499,9 +503,9 @@ def build_revert_footer(directory, operations):
 
 def write_ansi_log(directory, entries, operations, changes_made):
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
-    logs_dir = os.path.join(os.getcwd(), "logs")
+    logs_dir = REPO_ROOT / "logs"
     os.makedirs(logs_dir, exist_ok=True)
-    log_path = os.path.join(logs_dir, f"rename-log-{timestamp}")
+    log_path = logs_dir / f"rename-log-{timestamp}"
     created_at = datetime.now().isoformat(timespec='seconds')
     header = [
         f"{COLOR_GREEN}RENAME LOG{COLOR_RESET}",
@@ -516,7 +520,7 @@ def write_ansi_log(directory, entries, operations, changes_made):
         handle.write("\n\n".join(entries))
         handle.write("\n\n")
         handle.write(footer + "\n")
-    return log_path
+    return str(log_path)
 
 
 def strip_ansi(text):
@@ -544,12 +548,12 @@ def parse_revert_log(log_file):
 
 
 def get_latest_log_file():
-    logs_dir = os.path.join(os.getcwd(), "logs")
-    if not os.path.isdir(logs_dir):
+    logs_dir = REPO_ROOT / "logs"
+    if not logs_dir.is_dir():
         raise FileNotFoundError("No logs directory found")
 
     log_files = [
-        os.path.join(logs_dir, name)
+        str(logs_dir / name)
         for name in os.listdir(logs_dir)
         if re.fullmatch(r"rename-log-\d{8}-\d{6}-\d{6}", name)
     ]
@@ -690,7 +694,7 @@ def run_tests(test_file):
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] in ("--test", "-t"):
-        test_file = sys.argv[2] if len(sys.argv) > 2 else "tests.json"
+        test_file = sys.argv[2] if len(sys.argv) > 2 else str(REPO_ROOT / "tests.json")
         success = run_tests(test_file)
         sys.exit(0 if success else 1)
 
@@ -715,10 +719,10 @@ def main():
 
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  ./clean --test [file]             Run tests")
-        print("  ./clean <dir>                     Dry run (preview changes)")
-        print("  ./clean <dir> --run               Actually rename files")
-        print("  ./clean --revert [log]            Revert from log or latest log")
+        print("  clean --test [file]             Run tests")
+        print("  clean <dir>                     Dry run (preview changes)")
+        print("  clean <dir> --run               Actually rename files")
+        print("  clean --revert [log]            Revert from log or latest log")
         sys.exit(1)
 
     target_dir = sys.argv[1]
