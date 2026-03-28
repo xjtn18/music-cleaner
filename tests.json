@@ -27,12 +27,12 @@
   {
     "name": "splits dj name from clap intro and maps to clapapella",
     "input": "Don Toliver - Body (DJ Nasa Clap Intro) (Dirty Extended)",
-    "expected": "Don Toliver - Body (DJ Nasa) (Clapapella) (Intro - Dirty)"
+    "expected": "Don Toliver - Body (DJ Nasa) (Clapapella) (Dirty)"
   },
   {
     "name": "keeps custom segue tag and adds dirty edit from loose text",
     "input": "310babii, Trap Dickey & Key Glock - Soak City vs Down South (Smassh Wordplay Segue) Dirty 1A 103",
-    "expected": "310babii x Trap Dickey x Key Glock - Soak City vs Down South (Smassh Wordplay) (Segue) (Dirty)"
+    "expected": "310babii x Trap Dickey x Key Glock - Soak City vs Down South (Smassh) (Segue) (Intro - Dirty)"
   },
   {
     "name": "maps dirty extended to intro dirty",
@@ -97,7 +97,7 @@
   {
     "name": "splits vendor from acapella intro and maps to acapella in",
     "input": "Don Toliver - Body (Muzik Junkies Acapella Intro) (Clean Extended)",
-    "expected": "Don Toliver - Body (Muzik Junkies) (Acapella In) (Intro - Clean)"
+    "expected": "Don Toliver - Body (Muzik Junkies) (Acapella In) (Clean)"
   },
   {
     "name": "preserves custom club edit and wraps trailing clean",
@@ -163,5 +163,65 @@
     "name": "adds segue for vs while preserving custom edit",
     "input": "BigXthaPlug ft Ella Langle vs BeatBreaker - Hell At Night (BRDWY Edit) (Clean Extended)",
     "expected": "BigXthaPlug ft Ella Langle vs BeatBreaker - Hell At Night (BRDWY Edit) (Segue) (Intro - Clean)"
+  },
+  {
+    "name": "moves acap dirty tone to end",
+    "input": "Snoop Dogg ft Tripp Locc, Wayniac & Young Sagg - High Life (Acap - Dirty) 9A 98",
+    "expected": "Snoop Dogg ft Tripp Locc x Wayniac x Young Sagg - High Life (Acapella) (Dirty)"
+  },
+  {
+    "name": "removes old remix word when vs adds segue",
+    "input": "The Song Foundry vs 310Babii - Its Your Birthday (JD Live Blend - Hype Intro) Clean 8A 100",
+    "expected": "The Song Foundry vs 310Babii - Its Your Birthday (JD Live) (Segue) (Clean)"
+  },
+  {
+    "name": "suppresses intro when acapella in exists",
+    "input": "Tinashe - Nasty (Cesar Castilla Acapella Intro) (Clean Extended)",
+    "expected": "Tinashe - Nasty (Cesar Castilla) (Acapella In) (Clean)"
+  },
+  {
+    "name": "normalizes bare jump off tag",
+    "input": "Eve - Who's That Girl (Cesar Castilla Blend) (Jump Off) (Dirty)",
+    "expected": "Eve - Who's That Girl (Cesar Castilla) (Mash) (Jump Off Edit) (Dirty)"
+  },
+  {
+    "name": "expands inst to instrumental",
+    "input": "Tory Lanez - Planet Bass NBLYB (Inst) 2A 135",
+    "expected": "Tory Lanez - Planet Bass NBLYB (Instrumental)"
+  },
+  {
+    "name": "maps clap in and moves dirty to end",
+    "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Rassy Hype Intro) Dirty Clap In 8A 128",
+    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Rassy) (Clapapella) (Dirty)"
+  },
+  {
+    "name": "splits vendor from acapella out",
+    "input": "Big Feddy, FIU Safe & VaultMoney Turk - O K K K (Rob Rivera Acapella Out) (Dirty Short Edit)",
+    "expected": "Big Feddy x FIU Safe x VaultMoney Turk - O K K K (Rob Rivera) (Acapella Out) (Quick Hit Dirty)"
+  },
+  {
+    "name": "prefers intro when segue tag exists",
+    "input": "Blueface & Cardi B vs NLE Choppa - Thotiana (DYLF Aint Gonna Answer Edit) Dirty 4A 100",
+    "expected": "Blueface x Cardi B vs NLE Choppa - Thotiana (DYLF Aint Gonna Answer Edit) (Segue) (Intro - Dirty)"
+  },
+  {
+    "name": "separates dirty from acap shorthand",
+    "input": "Compton Av & Steelz - BOW (Acap - Dirty) 9A 83",
+    "expected": "Compton Av x Steelz - BOW (Acapella) (Dirty)"
+  },
+  {
+    "name": "separates dirty from acapella tag",
+    "input": "Compton Av & Steelz - BOW (Dirty Acapella)",
+    "expected": "Compton Av x Steelz - BOW (Acapella) (Dirty)"
+  },
+  {
+    "name": "removes wordplay from transition segue tag",
+    "input": "DaBaby vs French Montana & Rick Ross - POP DAT THANG vs Pop That (DJ OD 138-70 Wordplay Trans) Dirty 8A",
+    "expected": "DaBaby vs French Montana x Rick Ross - POP DAT THANG vs Pop That (DJ OD) (138 - 70 Transition) (Segue) (Dirty)"
+  },
+  {
+    "name": "converts word play edit to transition",
+    "input": "Don Toliver vs Megan Thee Stallion - Body (DJ Nasa 94-73 Word Play Edit) (Clean Extended)",
+    "expected": "Don Toliver vs Megan Thee Stallion - Body (DJ Nasa) (94 - 73 Transition) (Segue) (Clean)"
   }
 ]

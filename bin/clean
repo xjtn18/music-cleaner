@@ -13,6 +13,7 @@ from pathlib import Path
 
 
 GENERIC_REMIX_TAGS = {"Segue", "Mash", "Remix"}
+INTRO_SUPPRESSING_TAGS = {"Acapella In", "Acapella Out", "Acapella In & Out", "Slam Edit", "Ext", "Clapapella", "Jump Off Edit"}
 
 COLOR_RESET = "\033[0m"
 COLOR_DIM = "\033[2m"
@@ -33,6 +34,7 @@ class FilenameState:
     main_tags: list[str] = field(default_factory=list)
     edit_kind: str | None = None
     edit_tone: str | None = None
+    remix_replaced: bool = False
 
 
 def normalize_spaces(text):
@@ -44,6 +46,57 @@ def strip_outer_parens(text):
     if text.startswith("(") and text.endswith(")"):
         return text[1:-1].strip()
     return text
+
+
+def remove_wordplay_tokens(text):
+    text = re.sub(r"\bword\s*play\s+edit\b", "Transition", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bword\s*play\b", " ", text, flags=re.IGNORECASE)
+    return normalize_spaces(text)
+
+
+def strip_tone_words(text):
+    text = re.sub(r"\b(clean|dirty)\b", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s*-\s*", " ", text)
+    return normalize_spaces(text)
+
+
+def cleanup_bad_dash(text):
+    text = normalize_spaces(text)
+    text = re.sub(r"^\-\s*", "", text)
+    text = re.sub(r"\s*\-$", "", text)
+    return normalize_spaces(text)
+
+
+def remove_generic_remix_words(text):
+    text = re.sub(r"\b(segway|segue|blend|mashup|mash|remix)\b", " ", text, flags=re.IGNORECASE)
+    return cleanup_bad_dash(text)
+
+
+def is_intro_suppressed(state):
+    for tag in state.main_tags:
+        if tag in INTRO_SUPPRESSING_TAGS or tag.endswith(" Transition"):
+            return True
+    return False
+
+
+def has_remix_tag(state):
+    return any(re.search(r"\b(remix|segue|mash)\b", tag, flags=re.IGNORECASE) for tag in state.main_tags)
+
+
+def harmonize_edit_tag(state):
+    if not state.edit_tone:
+        return
+    if is_intro_suppressed(state):
+        if state.edit_kind == "intro":
+            state.edit_kind = "plain"
+        return
+    if has_remix_tag(state) and state.edit_kind == "plain" and not state.remix_replaced:
+        state.edit_kind = "intro"
+
+
+def is_duplicate_suffix_file(filename):
+    stem, _ = os.path.splitext(filename)
+    return re.search(r"\s*\(\d+\)$", stem) is not None
 
 
 def remove_noise_tokens(text):
@@ -192,6 +245,8 @@ def split_prefix_and_suffix(text, suffix_pattern):
 
 
 def extract_transition_tags(state, text):
+    text = remove_wordplay_tokens(text)
+
     match = re.match(
         r"^(.*?)(\d{2,3}\s*-\s*\d{2,3})\s*(trans|transition)$",
         text,
@@ -222,6 +277,8 @@ def extract_transition_tags(state, text):
 
 
 def normalize_acapella_tag(state, text):
+    tone = parse_tone(text)
+    text = strip_tone_words(text)
     lower = text.lower()
 
     both_pattern = r"\b(?:acapella|acap)\s+(?:intro|in)\s*(?:and|&)\s*(?:outro|out)\b"
@@ -231,12 +288,14 @@ def normalize_acapella_tag(state, text):
         if prefix:
             add_main_tag(state, prefix)
         add_main_tag(state, "Acapella In & Out")
+        if tone:
+            set_edit(state, kind="plain", tone=tone)
         return True
 
     for pattern, replacement in [
-        (r"\b(?:acapella|acap)\s+intro\b", "Acapella In"),
-        (r"\b(?:acapella|acap)\s+outro\b", "Acapella Out"),
-        (r"\bacap\b", "Acapella"),
+        (r"\b(?:acapella|acap)\s+(?:intro|in)\b", "Acapella In"),
+        (r"\b(?:acapella|acap)\s+(?:outro|out)\b", "Acapella Out"),
+        (r"\b(?:acapella|acap)\b", "Acapella"),
     ]:
         match = re.search(pattern, lower)
         if match:
@@ -245,15 +304,20 @@ def normalize_acapella_tag(state, text):
             if prefix:
                 add_main_tag(state, prefix)
             add_main_tag(state, replacement)
+            if tone:
+                set_edit(state, kind="plain", tone=tone)
             return True
 
     return False
 
 
 def normalize_special_intro_tag(state, text):
+    tone = parse_tone(text)
+    text = strip_tone_words(text)
+
     for pattern, replacement in [
         (r"\bparty\s+starter\b", "Clapapella"),
-        (r"\bclap\s+intro\b", "Clapapella"),
+        (r"\bclap\s+(?:intro|in)\b", "Clapapella"),
         (r"\bslam\s+(?:intro|in)\b", "Slam Edit"),
     ]:
         if re.search(pattern, text, flags=re.IGNORECASE):
@@ -262,6 +326,8 @@ def normalize_special_intro_tag(state, text):
             if prefix:
                 add_main_tag(state, prefix)
             add_main_tag(state, replacement)
+            if tone:
+                set_edit(state, kind="plain", tone=tone)
             return True
 
     match = re.match(r"^(.*?)\b(?:epic|hype|break)\s+intro$", text, flags=re.IGNORECASE)
@@ -287,7 +353,7 @@ def normalize_quick_hitter_tag(state, text):
 
 
 def normalize_jump_off_tag(state, text):
-    match = re.match(r"^(.*?)\bjump\s+off\s+edit$", text, flags=re.IGNORECASE)
+    match = re.match(r"^(.*?)\bjump\s+off(?:\s+edit)?$", text, flags=re.IGNORECASE)
     if not match:
         return False
 
@@ -301,6 +367,13 @@ def normalize_jump_off_tag(state, text):
 def normalize_extended_mix_tag(state, text):
     if re.fullmatch(r"extended\s+mix", text, flags=re.IGNORECASE):
         add_main_tag(state, "Ext")
+        return True
+    return False
+
+
+def normalize_instrumental_tag(state, text):
+    if re.fullmatch(r"inst|instrumental", text, flags=re.IGNORECASE):
+        add_main_tag(state, "Instrumental")
         return True
     return False
 
@@ -327,7 +400,7 @@ def normalize_generic_remix_tag(state, text):
 
 
 def normalize_parenthetical_chunk(state, chunk):
-    text = remove_noise_tokens(remove_kbpm_from_text(strip_outer_parens(chunk)))
+    text = remove_noise_tokens(remove_wordplay_tokens(remove_kbpm_from_text(strip_outer_parens(chunk))))
     if not text:
         return
 
@@ -336,6 +409,8 @@ def normalize_parenthetical_chunk(state, chunk):
     if apply_edit_from_text(state, text):
         return
     if normalize_extended_mix_tag(state, text):
+        return
+    if normalize_instrumental_tag(state, text):
         return
     if extract_transition_tags(state, text):
         return
@@ -351,13 +426,23 @@ def normalize_parenthetical_chunk(state, chunk):
 
 
 def consume_free_text(state, text):
-    text = remove_kbpm_from_text(remove_noise_tokens(text))
+    text = remove_wordplay_tokens(remove_kbpm_from_text(remove_noise_tokens(text)))
     text = re.sub(r"\bvs\.?(?=\s)", "vs", text, flags=re.IGNORECASE)
     text = normalize_spaces(text)
     if not text:
         return
 
     if apply_edit_from_text(state, text):
+        return
+    if normalize_instrumental_tag(state, text):
+        return
+    if normalize_acapella_tag(state, text):
+        return
+    if normalize_special_intro_tag(state, text):
+        return
+    if normalize_quick_hitter_tag(state, text):
+        return
+    if normalize_jump_off_tag(state, text):
         return
 
     transition = normalize_range_text(text)
@@ -426,7 +511,11 @@ def apply_vs_rule(state):
     for tag in state.main_tags:
         if tag in GENERIC_REMIX_TAGS:
             continue
-        new_tags.append(tag)
+        cleaned_tag = remove_generic_remix_words(tag)
+        if cleaned_tag != tag:
+            state.remix_replaced = True
+        if cleaned_tag:
+            new_tags.append(cleaned_tag)
 
     new_tags.append("Segue")
     state.main_tags = new_tags
@@ -436,7 +525,7 @@ def finalize_main_tags(state):
     seen = set()
     unique = []
     for tag in state.main_tags:
-        cleaned = normalize_spaces(strip_outer_parens(tag))
+        cleaned = cleanup_bad_dash(normalize_spaces(strip_outer_parens(tag)))
         if not cleaned:
             continue
         if cleaned not in seen:
@@ -459,6 +548,7 @@ def clean_filename(filename):
     state = derive_state(filename)
     apply_vs_rule(state)
     finalize_main_tags(state)
+    harmonize_edit_tag(state)
 
     parts = [state.artist]
     if state.song:
@@ -475,6 +565,9 @@ def clean_filename(filename):
     cleaned = cleaned.replace("(())", "")
     cleaned = re.sub(r"\(\s*\(", "(", cleaned)
     cleaned = re.sub(r"\)\s*\)", ")", cleaned)
+    cleaned = re.sub(r"\(\s*-\s*([^)]+)\)", r"(\1)", cleaned)
+    cleaned = re.sub(r"\(([^)]*?)\s*-\s*\)", r"(\1)", cleaned)
+    cleaned = normalize_spaces(cleaned)
     return cleaned.strip()
 
 
@@ -601,6 +694,23 @@ def process_directory(directory, dry_run=True):
     for root, _, files in os.walk(directory):
         for filename in files:
             original_path = os.path.join(root, filename)
+
+            if is_duplicate_suffix_file(filename):
+                original_stem, _ = os.path.splitext(filename)
+                preview_block = format_preview_block(original_stem, "[delete]", after_label="delete")
+                if dry_run:
+                    print(preview_block)
+                    print()
+                else:
+                    os.remove(original_path)
+                    log_entries.append(preview_block)
+                    log_operations.append({
+                        "action": "delete",
+                        "before": filename,
+                    })
+                changes_made += 1
+                continue
+
             cleaned = clean_filesystem_name(filename)
             if cleaned != filename:
                 new_path = os.path.join(root, cleaned)
@@ -631,6 +741,10 @@ def revert_from_log(log_file, dry_run=True):
     revert_operations = []
 
     for operation in operations:
+        if operation.get("action") == "delete":
+            print(f"{COLOR_RED}Cannot revert deleted duplicate file:{COLOR_RESET} {operation['before']}")
+            continue
+
         current_name = operation["after"]
         reverted_name = operation["before"]
         current_path = os.path.join(directory, current_name)
