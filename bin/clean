@@ -692,7 +692,24 @@ def run_tests(test_file):
     return failed == 0
 
 
+def show_test_diffs(test_file):
+    with open(test_file, "r") as f:
+        tests = json.load(f)
+
+    for index, test in enumerate(tests, start=1):
+        print(f"[{index}] {test['name']}")
+        print(format_preview_block(test["input"], test["expected"]))
+        print()
+
+    print(f"{len(tests)} test diffs shown.")
+
+
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--test-diff":
+        test_file = sys.argv[2] if len(sys.argv) > 2 else str(REPO_ROOT / "tests.json")
+        show_test_diffs(test_file)
+        return
+
     if len(sys.argv) > 1 and sys.argv[1] in ("--test", "-t"):
         test_file = sys.argv[2] if len(sys.argv) > 2 else str(REPO_ROOT / "tests.json")
         success = run_tests(test_file)
@@ -720,6 +737,7 @@ def main():
     if len(sys.argv) < 2:
         print("Usage:")
         print("  clean --test [file]             Run tests")
+        print("  clean --test-diff [file]        Preview input vs expected test diffs")
         print("  clean <dir>                     Dry run (preview changes)")
         print("  clean <dir> --run               Actually rename files")
         print("  clean --revert [log]            Revert from log or latest log")
