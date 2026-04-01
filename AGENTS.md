@@ -49,21 +49,21 @@ Implement the following rules into `bin/clean`, unless they say "[Implemented]" 
 
 - [Implemented] any "vs" on its own (after being normalized to lowercase), and removing any period it may have after, should be formatted to just "vs"
 
-- [Implemented] Anything spelled "segway" should be spelled "Segue". If the original word didn't have parens around it, then add them around the new spelling. If it did, leave them.
+- [Implemented] Anything spelled "segway" should be spelled "Segue".
 
-- [Implemented] Anything spelled "blend" or "mashup" needs to be spelled "mash". If the original word didn't have parens around it, then add them around the new spelling. If it did, leave them.
+- [Implemented] Anything spelled "blend" or "mashup" needs to be spelled "mash".
 
 - [Implemented] Anything that has "vs" in it, if they do not already have a remix tag in them, you should add "(Segue)" to the name. Otherwise if it does already contain a remix tag, you should replace it with "(Segue)"
 
-- [Implemented] "party starter" should be "Clapapella". If the original word didn't have parens around it, then add them around the new spelling. If it did, leave them.
+- [Implemented] "party starter" should be "Clapapella".
 
-- [Implemented] "slam in" or "slam intro" should be "Slam Edit". If the original word didn't have parens around it, then add them around the new spelling. If it did, leave them. If it said Intro in the original filename, that should be removed.
+- [Implemented] "slam in" or "slam intro" should be "Slam Edit". If it said Intro in the original filename, that should be removed.
 
-- [Implemented] "clap intro" should be "Clapapella". If the original word didn't have parens around it, then add them around the new spelling. If it did, leave them.
+- [Implemented] "clap intro" should be "Clapapella".
 
 - [Implemented] "trans" or "transition" followed by "\d+-\d" should have that second portion come first.
 
-- anything that says "transition" followed by some numbers should be 
+- in the tag segments of the filename, anytime you find a 2 number separated by a dash (with out without spaces between the numbers as the dash), that means the song is a transition
 
 - [Implemented] Any dashes between 2 number should always have a space before and after the dash if there is not already spaces there.
 
@@ -71,9 +71,9 @@ Implement the following rules into `bin/clean`, unless they say "[Implemented]" 
 
 - [Implemented] Anything that says "acapella outro" or "acap outro" should say "Acapella Out"
 
-- [Implemented] Anything that says "acap" without the  should say "Acapella"
+- [Implemented] Anything that says "acap" alone should say "Acapella"
 
-- [Implemented] Anything that says "acapella intro and outro", where "and" can be "and" or "&", and where "intro" can be "in", and where "outro" can be "out", should be "acapella in & out". If the original word didn't have parens around it, then add them around the new spelling. If it did, leave them.
+- [Implemented] Anything that says "acapella intro and outro", where "and" can be "&", and where "intro" can be "in", and where "outro" can be "out", should be "acapella in & out".
 
 - [Implemented] if it says "acapella in" or "acapella out", remove the word "intro" from the edit tag
 
@@ -109,7 +109,7 @@ Explicit hard-coded formatting rules:
 
 - [Inferred] If a filename contains `vs`, any pre-existing remix tags should be removed from custom tags and replaced by `(Segue)`.
 
-- [Inferred] If a cleaned filename contains `Remix`, `Segue`, or `Mash`, the edit tag should prefer `Intro - Clean/Dirty` unless another tag like `Transition`, `Acapella In`, `Acapella Out`, `Slam Edit`, `Ext`, or `Clapapella` makes `Intro` redundant.
+- [Inferred] If a cleaned filename contains `Remix`, `Segue`, or `Mash`, the edit tag should alteast contain "Intro", unless another tag like `Transition`, `Acapella In`, `Acapella Out`, `Slam Edit`, `Ext`, or `Clapapella` makes `Intro` redundant.
 
 - [Inferred] Final cleanup should remove dangling dashes inside tag parens, such as `(- Dirty)` or `(JD Live -)`.
 

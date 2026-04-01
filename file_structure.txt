@@ -1,0 +1,158 @@
+New Music/
+├─ Country/
+│  ├─ Clean/
+│  ├─ Dirty/
+│  ├─ Intro Clean/
+│  ├─ Intro Dirty/
+│  ├─ Quick Hit Clean/
+│  └─ Quick Hit Dirty/
+├─ EDM/
+│  ├─ Drum & Bass/
+│  │  ├─ Clean/
+│  │  ├─ Dirty/
+│  │  ├─ Intro Clean/
+│  │  ├─ Intro Dirty/
+│  │  ├─ Quick Hit Clean/
+│  │  └─ Quick Hit Dirty/
+│  ├─ Dubstep/
+│  │  ├─ Dubstep Mash/
+│  │  │  ├─ Clean/
+│  │  │  ├─ Dirty/
+│  │  │  ├─ Intro Clean/
+│  │  │  ├─ Intro Dirty/
+│  │  │  ├─ Quick Hit Clean/
+│  │  │  └─ Quick Hit Dirty/
+│  │  └─ Dubstep/
+│  │     ├─ Clean/
+│  │     ├─ Dirty/
+│  │     ├─ Intro Clean/
+│  │     ├─ Intro Dirty/
+│  │     ├─ Quick Hit Clean/
+│  │     └─ Quick Hit Dirty/
+│  ├─ Garage/
+│  │  ├─ Clean/
+│  │  ├─ Dirty/
+│  │  ├─ Quick Hit Clean/
+│  │  └─ Quick Hit Dirty/
+│  ├─ House/
+│  │  ├─ Afro House/
+│  │  │  ├─ Clean/
+│  │  │  ├─ Dirty/
+│  │  │  ├─ Quick Hit Clean/
+│  │  │  └─ Quick Hit Dirty/
+│  │  ├─ Deep House/
+│  │  │  ├─ Clean/
+│  │  │  ├─ Dirty/
+│  │  │  ├─ Quick Hit Clean/
+│  │  │  └─ Quick Hit Dirty/
+│  │  ├─ Electro-Bass House/
+│  │  │  ├─ Clean/
+│  │  │  ├─ Dirty/
+│  │  │  ├─ Quick Hit Clean/
+│  │  │  └─ Quick Hit Dirty/
+│  │  ├─ Latin House/
+│  │  │  ├─ Clean/
+│  │  │  ├─ Dirty/
+│  │  │  ├─ Quick Hit Clean/
+│  │  │  └─ Quick Hit Dirty/
+│  │  ├─ Mash House/
+│  │  │  ├─ Electro-Bass House Mash/
+│  │  │  │  ├─ Clean/
+│  │  │  │  ├─ Dirty/
+│  │  │  │  ├─ Quick Hit Clean/
+│  │  │  │  └─ Quick Hit Dirty/
+│  │  │  └─ Tech House Mash/
+│  │  │     ├─ Clean/
+│  │  │     ├─ Dirty/
+│  │  │     ├─ Quick Hit Clean/
+│  │  │     └─ Quick Hit Dirty/
+│  │  └─ Tech House/
+│  │     ├─ Clean/
+│  │     ├─ Dirty/
+│  │     ├─ Quick Hit Clean/
+│  │     └─ Quick Hit Dirty/
+│  ├─ Jersey Club/
+│  │  ├─ Clean/
+│  │  ├─ Dirty/
+│  │  ├─ Intro Clean/
+│  │  ├─ Intro Dirty/
+│  │  ├─ Quick Hit Clean/
+│  │  └─ Quick Hit Dirty/
+│  └─ Trap/
+│     ├─ Trap Mash/
+│     │  ├─ Clean/
+│     │  ├─ Dirty/
+│     │  ├─ Intro Clean/
+│     │  ├─ Intro Dirty/
+│     │  ├─ Quick Hit Clean/
+│     │  └─ Quick Hit Dirty/
+│     └─ Trap/
+│        ├─ Clean/
+│        ├─ Dirty/
+│        ├─ Intro Clean/
+│        ├─ Intro Dirty/
+│        ├─ Quick Hit Clean/
+│        └─ Quick Hit Dirty/
+├─ Hip Hop/
+│  ├─ Clean/
+│  ├─ Dirty/
+│  ├─ Intro Clean/
+│  ├─ Intro Dirty/
+│  ├─ Quick Hit Clean/
+│  └─ Quick Hit Dirty/
+├─ Hip Hop Tools/
+│  ├─ Acapellas/
+│  │  ├─ Acapella In & Out/
+│  │  │  ├─ Clean/
+│  │  │  ├─ Dirty/
+│  │  │  ├─ Quick Hit Clean/
+│  │  │  └─ Quick Hit Dirty/
+│  │  ├─ Acapella In/
+│  │  │  ├─ Clean/
+│  │  │  ├─ Dirty/
+│  │  │  ├─ Quick Hit Clean/
+│  │  │  └─ Quick Hit Dirty/
+│  │  ├─ Acapella Out/
+│  │  │  ├─ Intro Clean/
+│  │  │  ├─ Intro Dirty/
+│  │  │  ├─ Quick Hit Clean/
+│  │  │  └─ Quick Hit Dirty/
+│  │  └─ Acapella/
+│  │     ├─ Clean/
+│  │     └─ Dirty/
+│  ├─ Clapapella/
+│  │  ├─ Clean/
+│  │  ├─ Dirty/
+│  │  ├─ Quick Hit Clean/
+│  │  └─ Quick Hit Dirty/
+│  ├─ Instrumental/
+│  ├─ Jump Off Edit/
+│  │  ├─ Clean/
+│  │  └─ Dirty/
+│  ├─ Mash/
+│  │  ├─ Intro Clean/
+│  │  ├─ Intro Dirty/
+│  │  ├─ Quick Hit Clean/
+│  │  └─ Quick Hit Dirty/
+│  ├─ Segue/
+│  │  ├─ Intro Clean/
+│  │  ├─ Intro Dirty/
+│  │  ├─ Quick Hit Clean/
+│  │  └─ Quick Hit Dirty/
+│  ├─ Slam Edit/
+│  │  ├─ Clean/
+│  │  ├─ Dirty/
+│  │  ├─ Quick Hit Clean/
+│  │  └─ Quick Hit Dirty/
+│  └─ Transition/
+│     ├─ Clean/
+│     ├─ Dirty/
+│     ├─ Quick Hit Clean/
+│     └─ Quick Hit Dirty/
+└─ Latin/
+   ├─ Clean/
+   ├─ Dirty/
+   ├─ Intro Clean/
+   ├─ Intro Dirty/
+   ├─ Quick Hit Clean/
+   └─ Quick Hit Dirty/
