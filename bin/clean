@@ -14,6 +14,22 @@ from pathlib import Path
 
 GENERIC_REMIX_TAGS = {"Segue", "Mash", "Remix"}
 INTRO_SUPPRESSING_TAGS = {"Acapella In", "Acapella Out", "Acapella In & Out", "Slam Edit", "Ext", "Clapapella", "Jump Off Edit"}
+TRANSITION_PREFIX_DROP_PATTERNS = [
+    r"\bhip\s+hop\s+to\s+house\b",
+    r"\bvip\s+flip\b",
+    r"\bflip\b",
+    r"\bedit\b",
+]
+REMOVED_TAG_PATTERNS = []
+REDUNDANT_INTRO_TAGS = {
+    "Acapella Intro",
+    "Hype Intro",
+    "Hype In",
+    "Epic Intro",
+    "Epic In",
+    "Break Intro",
+    "Break In",
+}
 
 COLOR_RESET = "\033[0m"
 COLOR_DIM = "\033[2m"
@@ -21,12 +37,16 @@ COLOR_RED = "\033[31m"
 COLOR_GREEN = "\033[32m"
 COLOR_CYAN = "\033[36m"
 COLOR_BRIGHT_CYAN = "\033[96m"
+COLOR_BLUE = "\033[34m"
+COLOR_MAGENTA = "\033[35m"
+COLOR_YELLOW = "\033[33m"
 ANSI_PATTERN = re.compile(r"\x1b\[[0-9;]*m")
 REVERT_DATA_PREFIX = "REVERT_DATA_V1:"
 DELETED_SENTINEL = "[deleted]"
 SCRIPT_PATH = Path(__file__).resolve()
 BIN_DIR = SCRIPT_PATH.parent
 REPO_ROOT = BIN_DIR.parent
+SORT_FOLDER_COLORS = [COLOR_CYAN, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_BRIGHT_CYAN]
 
 
 @dataclass
@@ -37,10 +57,17 @@ class FilenameState:
     edit_kind: str | None = None
     edit_tone: str | None = None
     remix_replaced: bool = False
+    in_house: bool = False
+    explicit_intro_edit: bool = False
+    explicit_acapella_intro_source: bool = False
 
 
 def normalize_spaces(text):
     return re.sub(r"\s+", " ", text).strip()
+
+
+def title_case_phrase(text):
+    return " ".join(word[:1].upper() + word[1:] if word else word for word in text.split())
 
 
 def strip_outer_parens(text):
@@ -56,9 +83,14 @@ def remove_wordplay_tokens(text):
     return normalize_spaces(text)
 
 
+def remove_discarded_tag_phrases(text):
+    for pattern in REMOVED_TAG_PATTERNS:
+        text = re.sub(pattern, " ", text, flags=re.IGNORECASE)
+    return normalize_spaces(text)
+
+
 def strip_tone_words(text):
     text = re.sub(r"\b(clean|dirty)\b", " ", text, flags=re.IGNORECASE)
-    text = re.sub(r"\s*-\s*", " ", text)
     return normalize_spaces(text)
 
 
@@ -81,17 +113,44 @@ def is_intro_suppressed(state):
     return False
 
 
+def intro_suppressor_tags(state):
+    suppressors = []
+    for tag in state.main_tags:
+        if tag in INTRO_SUPPRESSING_TAGS or tag.endswith(" Transition"):
+            suppressors.append(tag)
+    return suppressors
+
+
 def has_remix_tag(state):
     return any(re.search(r"\b(remix|segue|mash)\b", tag, flags=re.IGNORECASE) for tag in state.main_tags)
+
+
+def has_club_edit_tag(state):
+    return any(re.search(r"\bclub\s+edit\b", tag, flags=re.IGNORECASE) for tag in state.main_tags)
+
+
+def has_redundant_intro_tag(state):
+    return any(tag in REDUNDANT_INTRO_TAGS for tag in state.main_tags)
 
 
 def harmonize_edit_tag(state):
     if not state.edit_tone:
         return
-    if is_intro_suppressed(state):
-        if state.edit_kind == "intro":
-            state.edit_kind = "plain"
+    if state.in_house and state.edit_kind == "intro":
+        state.edit_kind = "plain"
         return
+    has_redundant_intro = has_redundant_intro_tag(state)
+    suppressors = intro_suppressor_tags(state)
+    if suppressors:
+        if state.edit_kind == "intro":
+            if not has_redundant_intro and (not state.explicit_intro_edit or any(tag != "Slam Edit" for tag in suppressors)):
+                state.edit_kind = "plain"
+        if state.edit_kind != "intro" and not has_redundant_intro:
+            return
+    if has_redundant_intro and state.edit_kind == "plain":
+        state.edit_kind = "intro"
+    if has_club_edit_tag(state) and state.edit_kind == "plain":
+        state.edit_kind = "intro"
     if has_remix_tag(state) and state.edit_kind == "plain" and not state.remix_replaced:
         state.edit_kind = "intro"
 
@@ -104,13 +163,14 @@ def is_duplicate_suffix_file(filename):
 def remove_noise_tokens(text):
     text = re.sub(r"\bClub\s+Killers\b", " ", text, flags=re.IGNORECASE)
     text = re.sub(r"\bCK\b(?!\s+Cut\b)\s*", " ", text)
-    return normalize_spaces(text)
+    return remove_discarded_tag_phrases(normalize_spaces(text))
 
 
 def normalize_artist_names(text):
     replacements = [
         (r"\bAAP\s+Rocky\b", "A$AP Rocky"),
         (r"\bASAP\s+Rocky\b", "A$AP Rocky"),
+        (r"\bASAP\s+Ferg\b", "A$AP Ferg"),
         (r"\bTy\s+Dolla\s+Sign\b", "Ty Dolla $ign"),
         (r"\bToo\s+Short\b", "Too $hort"),
         (r"\bSchoolboy\s+Q\b", "ScHoolboy Q"),
@@ -173,6 +233,9 @@ def split_filename(filename):
 
 def remove_kbpm_from_text(text):
     text = re.sub(r"\b\d{1,2}[AB]\b\s+\d{2,3}\b", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b\d{2,3}\b\s+[AB]\b", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b[AB]\b\s+\d{2,3}\b", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b\d{2,3}\s+\d{1,2}[AB]\b", " ", text, flags=re.IGNORECASE)
     text = re.sub(r"\b\d{1,2}[AB]\b", " ", text, flags=re.IGNORECASE)
     return normalize_spaces(text)
 
@@ -201,15 +264,21 @@ def parse_tone(text):
 
 
 def apply_edit_from_text(state, text):
-    lower = text.lower()
+    lower = remove_discarded_tag_phrases(text).lower()
     tone = parse_tone(text)
 
     if re.search(r"\bintro\s*-?\s*(clean|dirty)\b", lower):
         set_edit(state, kind="intro", tone=tone)
+        state.explicit_intro_edit = True
         return True
 
     if re.search(r"\b(clean|dirty)\s+extended\b", lower):
-        set_edit(state, kind="intro", tone=tone)
+        if state.in_house:
+            add_main_tag(state, "Ext")
+            set_edit(state, kind="plain", tone=tone)
+        else:
+            set_edit(state, kind="intro", tone=tone)
+            state.explicit_intro_edit = True
         return True
 
     if re.search(r"\b(clean|dirty)\s+(short\s+edit|ck\s+cut)\b", lower):
@@ -221,7 +290,13 @@ def apply_edit_from_text(state, text):
         return True
 
     if re.search(r"\b(clean|dirty)\s+radio\s+edit\b", lower):
+        if state.in_house:
+            add_main_tag(state, "Original Mix")
         set_edit(state, kind="plain", tone=tone)
+        return True
+
+    if state.in_house and re.fullmatch(r"radio\s+edit", lower):
+        add_main_tag(state, "Original Mix")
         return True
 
     if re.fullmatch(r"(clean|dirty)", lower):
@@ -246,8 +321,22 @@ def split_prefix_and_suffix(text, suffix_pattern):
     return prefix, True
 
 
+def split_transition_prefix(prefix):
+    prefix = normalize_spaces(prefix)
+    if not prefix:
+        return ""
+
+    for pattern in TRANSITION_PREFIX_DROP_PATTERNS:
+        match = re.search(pattern, prefix, flags=re.IGNORECASE)
+        if match:
+            prefix = prefix[:match.start()]
+            break
+
+    return normalize_spaces(prefix)
+
+
 def extract_transition_tags(state, text):
-    text = remove_wordplay_tokens(text)
+    text = remove_discarded_tag_phrases(remove_wordplay_tokens(text))
 
     match = re.match(
         r"^(.*?)(\d{2,3}\s*-\s*\d{2,3})\s*(trans|transition)$",
@@ -255,7 +344,7 @@ def extract_transition_tags(state, text):
         flags=re.IGNORECASE,
     )
     if match:
-        prefix = normalize_spaces(match.group(1))
+        prefix = split_transition_prefix(match.group(1))
         transition = normalize_range_text(match.group(2))
         if prefix:
             add_main_tag(state, prefix)
@@ -268,8 +357,17 @@ def extract_transition_tags(state, text):
         flags=re.IGNORECASE,
     )
     if match:
-        prefix = normalize_spaces(match.group(1))
+        prefix = split_transition_prefix(match.group(1))
         transition = normalize_range_text(match.group(3))
+        if prefix:
+            add_main_tag(state, prefix)
+        add_main_tag(state, transition)
+        return True
+
+    match = re.search(r"(\d{2,3}\s*-\s*\d{2,3})", text, flags=re.IGNORECASE)
+    if match:
+        prefix = split_transition_prefix(text[:match.start()])
+        transition = normalize_range_text(match.group(1))
         if prefix:
             add_main_tag(state, prefix)
         add_main_tag(state, transition)
@@ -280,32 +378,48 @@ def extract_transition_tags(state, text):
 
 def normalize_acapella_tag(state, text):
     tone = parse_tone(text)
-    text = strip_tone_words(text)
-    lower = text.lower()
+    text = remove_discarded_tag_phrases(strip_tone_words(text))
 
-    both_pattern = r"\b(?:acapella|acap)\s+(?:intro|in)\s*(?:and|&)\s*(?:outro|out)\b"
-    if re.search(both_pattern, lower):
-        prefix = re.sub(both_pattern, "", text, flags=re.IGNORECASE)
-        prefix = normalize_spaces(prefix)
+    both_pattern = r"^(.*?)(?:acapella|acap)\s+(?:intro|in)\s*(?:and|&)\s*(?:outro|out)(.*)$"
+    match = re.search(both_pattern, text, flags=re.IGNORECASE)
+    if match:
+        prefix = normalize_spaces(match.group(1))
+        suffix = normalize_spaces(match.group(2))
         if prefix:
             add_main_tag(state, prefix)
         add_main_tag(state, "Acapella In & Out")
+        if suffix:
+            add_main_tag(state, title_case_phrase(suffix))
         if tone:
             set_edit(state, kind="plain", tone=tone)
         return True
 
-    for pattern, replacement in [
-        (r"\b(?:acapella|acap)\s+(?:intro|in)\b", "Acapella In"),
-        (r"\b(?:acapella|acap)\s+(?:outro|out)\b", "Acapella Out"),
-        (r"\b(?:acapella|acap)\b", "Acapella"),
-    ]:
-        match = re.search(pattern, lower)
+    if state.explicit_acapella_intro_source:
+        match = re.search(r"^(.*?)\bacapella\s+intro\b(.*)$", text, flags=re.IGNORECASE)
         if match:
-            prefix = re.sub(pattern, "", text, flags=re.IGNORECASE)
-            prefix = normalize_spaces(prefix)
+            prefix = normalize_spaces(match.group(1))
+            suffix = normalize_spaces(match.group(2))
             if prefix:
                 add_main_tag(state, prefix)
-            add_main_tag(state, replacement)
+            tag = "Acapella Intro" if not suffix else f"Acapella Intro {title_case_phrase(suffix)}"
+            add_main_tag(state, tag)
+            if tone:
+                set_edit(state, kind="plain", tone=tone)
+            return True
+
+    for pattern, replacement in [
+        (r"^(.*?)(?:acapella|acap)\s+(?:intro|in)(.*)$", "Acapella In"),
+        (r"^(.*?)(?:acapella|acap)\s+(?:outro|out)(.*)$", "Acapella Out"),
+        (r"^(.*?)(?:acapella|acap)(.*)$", "Acapella"),
+    ]:
+        match = re.search(pattern, text, flags=re.IGNORECASE)
+        if match:
+            prefix = normalize_spaces(match.group(1))
+            suffix = normalize_spaces(match.group(2))
+            if prefix:
+                add_main_tag(state, prefix)
+            tag = replacement if not suffix else f"{replacement} {title_case_phrase(suffix)}"
+            add_main_tag(state, tag)
             if tone:
                 set_edit(state, kind="plain", tone=tone)
             return True
@@ -315,12 +429,13 @@ def normalize_acapella_tag(state, text):
 
 def normalize_special_intro_tag(state, text):
     tone = parse_tone(text)
-    text = strip_tone_words(text)
+    text = remove_discarded_tag_phrases(strip_tone_words(text))
 
     for pattern, replacement in [
         (r"\bparty\s+starter\b", "Clapapella"),
         (r"\bclap\s+(?:intro|in)\b", "Clapapella"),
         (r"\bslam\s+(?:intro|in)\b", "Slam Edit"),
+        (r"\bslam\s+edit\b", "Slam Edit"),
     ]:
         if re.search(pattern, text, flags=re.IGNORECASE):
             prefix = re.sub(pattern, "", text, flags=re.IGNORECASE)
@@ -332,12 +447,24 @@ def normalize_special_intro_tag(state, text):
                 set_edit(state, kind="plain", tone=tone)
             return True
 
-    match = re.match(r"^(.*?)\b(?:epic|hype|break)\s+intro$", text, flags=re.IGNORECASE)
-    if match:
-        prefix = normalize_spaces(match.group(1))
-        if prefix:
-            add_main_tag(state, prefix)
-        return True
+    for pattern, replacement in [
+        (r"\bacapella\s+intro\b", "Acapella Intro"),
+        (r"\bhype\s+intro\b", "Hype Intro"),
+        (r"\bhype\s+in\b", "Hype In"),
+        (r"\bepic\s+intro\b", "Epic Intro"),
+        (r"\bepic\s+in\b", "Epic In"),
+        (r"\bbreak\s+intro\b", "Break Intro"),
+        (r"\bbreak\s+in\b", "Break In"),
+    ]:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            prefix = re.sub(pattern, "", text, flags=re.IGNORECASE)
+            prefix = normalize_spaces(prefix)
+            if prefix:
+                add_main_tag(state, prefix)
+            add_main_tag(state, replacement)
+            if tone:
+                set_edit(state, kind="plain", tone=tone)
+            return True
 
     return False
 
@@ -430,6 +557,7 @@ def normalize_parenthetical_chunk(state, chunk):
 def consume_free_text(state, text):
     text = remove_wordplay_tokens(remove_kbpm_from_text(remove_noise_tokens(text)))
     text = re.sub(r"\bvs\.?(?=\s)", "vs", text, flags=re.IGNORECASE)
+    text = remove_discarded_tag_phrases(text)
     text = normalize_spaces(text)
     if not text:
         return
@@ -455,9 +583,14 @@ def consume_free_text(state, text):
     add_main_tag(state, text)
 
 
-def derive_state(filename):
+def derive_state(filename, in_house=False):
     parsed = split_filename(filename)
-    state = FilenameState(artist=parsed.artist, song=parsed.song)
+    state = FilenameState(
+        artist=parsed.artist,
+        song=parsed.song,
+        in_house=in_house,
+        explicit_acapella_intro_source=re.search(r"\bacapella\s+intro\b", filename, flags=re.IGNORECASE) is not None,
+    )
 
     tags = parsed.main_tags
     paren_count = len(re.findall(r"\([^()]*\)", filename.split(" - ", 1)[1] if " - " in filename else ""))
@@ -527,6 +660,7 @@ def finalize_main_tags(state):
     seen = set()
     unique = []
     for tag in state.main_tags:
+        tag = re.sub(r"\bvip\s+flip\b", " ", tag, flags=re.IGNORECASE)
         cleaned = cleanup_bad_dash(normalize_spaces(strip_outer_parens(tag)))
         if not cleaned:
             continue
@@ -539,15 +673,19 @@ def finalize_main_tags(state):
 def render_edit_tag(state):
     if not state.edit_tone:
         return ""
-    if state.edit_kind == "intro":
+    if state.edit_kind == "intro" and not state.in_house:
         return f"Intro - {state.edit_tone}"
     if state.edit_kind == "quick_hit":
         return f"Quick Hit {state.edit_tone}"
     return state.edit_tone
 
 
-def clean_filename(filename):
-    state = derive_state(filename)
+def is_house_path(path):
+    return any(part.lower() == "house" for part in Path(path).parts)
+
+
+def clean_filename(filename, in_house=False):
+    state = derive_state(filename, in_house=in_house)
     apply_vs_rule(state)
     finalize_main_tags(state)
     harmonize_edit_tag(state)
@@ -573,9 +711,9 @@ def clean_filename(filename):
     return cleaned.strip()
 
 
-def clean_filesystem_name(filename):
+def clean_filesystem_name(filename, in_house=False):
     stem, ext = os.path.splitext(filename)
-    cleaned_stem = clean_filename(stem)
+    cleaned_stem = clean_filename(stem, in_house=in_house)
     return f"{cleaned_stem}{ext}"
 
 
@@ -596,6 +734,37 @@ def format_delete_preview_block(original, reason):
             f"  {COLOR_GREEN}after: {COLOR_RESET} {COLOR_BRIGHT_CYAN}{DELETED_SENTINEL} * {reason}{COLOR_RESET}",
         ]
     )
+
+
+def format_move_destination(destination):
+    return f"  {COLOR_CYAN}move:{COLOR_RESET} {colorize_sort_path(destination)}"
+
+
+def format_cleaned_filename(cleaned):
+    return f"  {COLOR_GREEN}clean:{COLOR_RESET} {cleaned}"
+
+
+def colorize_sort_path(path):
+    parts = Path(path).parts
+    if not parts:
+        return path
+
+    colored_parts = []
+    for index, part in enumerate(parts):
+        if index == len(parts) - 1:
+            colored_parts.append(part)
+        else:
+            color = SORT_FOLDER_COLORS[index % len(SORT_FOLDER_COLORS)]
+            colored_parts.append(f"{color}{part}{COLOR_RESET}")
+    return os.path.join(*colored_parts)
+
+
+def format_sort_preview_block(original, cleaned, destination):
+    return "\n".join([
+        f"  {COLOR_RED}file:{COLOR_RESET} {colorize_sort_path(original)}",
+        format_cleaned_filename(cleaned),
+        format_move_destination(destination),
+    ])
 
 
 def build_revert_footer(directory, operations):
@@ -698,6 +867,71 @@ def build_inline_diff(original, cleaned):
     return "".join(before_parts), "".join(after_parts)
 
 
+def classify_sort_leaf(state):
+    edit_tag = render_edit_tag(state)
+    if edit_tag:
+        return edit_tag.replace(" - ", " ")
+    return None
+
+
+def classify_hip_hop_tool_path(state):
+    for tag in state.main_tags:
+        if tag in {"Acapella In & Out", "Acapella In", "Acapella Out", "Acapella"}:
+            return os.path.join("Acapellas", tag)
+        if tag == "Clapapella":
+            return "Clapapella"
+        if tag == "Instrumental":
+            return "Instrumental"
+        if tag == "Jump Off Edit":
+            return "Jump Off Edit"
+        if tag == "Mash":
+            return "Mash"
+        if tag == "Segue":
+            return "Segue"
+        if tag == "Slam Edit":
+            return "Slam Edit"
+        if tag.endswith("Transition"):
+            return "Transition"
+    return None
+
+
+def infer_genre_root(target_dir, root):
+    relative = Path(os.path.relpath(root, target_dir))
+    parts = [] if str(relative) == "." else list(relative.parts)
+    for part in parts:
+        if part.lower() == "edm":
+            return "EDM"
+    for genre in ["Country", "Hip Hop", "Latin"]:
+        if genre in parts:
+            return genre
+    return None
+
+
+def build_sort_destination(target_dir, current_root, filename):
+    genre = infer_genre_root(target_dir, current_root)
+    if genre in (None, "EDM"):
+        return None
+
+    stem, _ = os.path.splitext(filename)
+    state = derive_state(stem, in_house=genre == "House")
+    apply_vs_rule(state)
+    finalize_main_tags(state)
+    harmonize_edit_tag(state)
+
+    leaf = classify_sort_leaf(state)
+    if not leaf:
+        return None
+
+    if genre == "Hip Hop":
+        tool_path = classify_hip_hop_tool_path(state)
+        if tool_path == "Instrumental":
+            return os.path.join(target_dir, "Hip Hop Tools", tool_path, filename)
+        if tool_path:
+            return os.path.join(target_dir, "Hip Hop Tools", tool_path, leaf, filename)
+
+    return os.path.join(target_dir, genre, leaf, filename)
+
+
 def process_directory(directory, dry_run=True):
     changes_made = 0
     log_entries = []
@@ -706,6 +940,7 @@ def process_directory(directory, dry_run=True):
         occupied_names = set(files)
         for filename in files:
             original_path = os.path.join(root, filename)
+            in_house = is_house_path(original_path)
 
             if is_duplicate_suffix_file(filename):
                 original_stem, _ = os.path.splitext(filename)
@@ -717,14 +952,14 @@ def process_directory(directory, dry_run=True):
                     os.remove(original_path)
                     log_entries.append(preview_block)
                     log_operations.append({
-                        "before": filename,
+                        "before": os.path.relpath(original_path, directory),
                         "after": DELETED_SENTINEL,
                     })
                 occupied_names.discard(filename)
                 changes_made += 1
                 continue
 
-            cleaned = clean_filesystem_name(filename)
+            cleaned = clean_filesystem_name(filename, in_house=in_house)
             if cleaned != filename:
                 occupied_names.discard(filename)
                 new_path = os.path.join(root, cleaned)
@@ -740,7 +975,7 @@ def process_directory(directory, dry_run=True):
                         os.remove(original_path)
                         log_entries.append(delete_preview)
                         log_operations.append({
-                            "before": filename,
+                            "before": os.path.relpath(original_path, directory),
                             "after": DELETED_SENTINEL,
                         })
                     changes_made += 1
@@ -752,11 +987,62 @@ def process_directory(directory, dry_run=True):
                     os.rename(original_path, new_path)
                     log_entries.append(preview_block)
                     log_operations.append({
-                        "before": filename,
-                        "after": cleaned,
+                        "before": os.path.relpath(original_path, directory),
+                        "after": os.path.relpath(new_path, directory),
                     })
                 occupied_names.add(cleaned)
                 changes_made += 1
+    log_path = None
+    if not dry_run and log_entries:
+        log_path = write_ansi_log(directory, log_entries, log_operations, changes_made)
+    return changes_made, log_path
+
+
+def process_directory_sort(directory, dry_run=True):
+    changes_made = 0
+    log_entries = []
+    log_operations = []
+    for root, _, files in os.walk(directory):
+        if any(part.lower() == "edm" for part in Path(root).parts):
+            continue
+
+        for filename in files:
+            original_path = os.path.join(root, filename)
+            in_house = is_house_path(original_path)
+            cleaned_filename = clean_filesystem_name(filename, in_house=in_house)
+            destination_filename = cleaned_filename if dry_run else filename
+            destination_path = build_sort_destination(directory, root, destination_filename)
+            if not destination_path or os.path.normpath(destination_path) == os.path.normpath(original_path):
+                continue
+
+            original_rel = os.path.relpath(original_path, directory)
+            destination_rel = os.path.relpath(destination_path, directory)
+            preview_block = format_sort_preview_block(original_rel, cleaned_filename, destination_rel)
+
+            if dry_run:
+                print(preview_block)
+                print()
+                changes_made += 1
+                continue
+
+            os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+            if os.path.exists(destination_path):
+                delete_preview = format_delete_preview_block(original_rel, f"collision at {destination_rel}")
+                os.remove(original_path)
+                log_entries.append(delete_preview)
+                log_operations.append({
+                    "before": original_rel,
+                    "after": DELETED_SENTINEL,
+                })
+            else:
+                os.rename(original_path, destination_path)
+                log_entries.append(preview_block)
+                log_operations.append({
+                    "before": original_rel,
+                    "after": destination_rel,
+                })
+            changes_made += 1
+
     log_path = None
     if not dry_run and log_entries:
         log_path = write_ansi_log(directory, log_entries, log_operations, changes_made)
@@ -788,6 +1074,7 @@ def revert_from_log(log_file, dry_run=True):
         preview_block = format_preview_block(current_stem, reverted_stem, before_label="current", after_label="revert")
 
         if not dry_run:
+            os.makedirs(os.path.dirname(reverted_path), exist_ok=True)
             os.rename(current_path, reverted_path)
             log_entries.append(preview_block)
             revert_operations.append({
@@ -813,7 +1100,7 @@ def run_tests(test_file):
         tests = json.load(f)
 
     for test in tests:
-        result = clean_filename(test["input"])
+        result = clean_filename(test["input"], in_house=test.get("in_house", False))
         if result == test["expected"]:
             passed += 1
         else:
@@ -883,19 +1170,26 @@ def main():
         print("  clean --test-diff [file]        Preview input vs expected test diffs")
         print("  clean <dir>                     Dry run (preview changes)")
         print("  clean <dir> --run               Actually rename files")
+        print("  clean <dir> --sort              Dry run sort into folders")
+        print("  clean <dir> --sort --run        Actually sort into folders")
         print("  clean --revert [log]            Revert from log or latest log")
         sys.exit(1)
 
     target_dir = sys.argv[1]
     dry_run = "--run" not in sys.argv
+    sort_mode = "--sort" in sys.argv
 
     if dry_run:
         print(f"{COLOR_CYAN}DRY RUN{COLOR_RESET} {COLOR_DIM}No changes will be made. Use --run to apply changes.{COLOR_RESET}")
         print()
     else:
-        print(f"{COLOR_CYAN}RUN{COLOR_RESET} {COLOR_DIM}Renaming files in {target_dir}{COLOR_RESET}")
+        action = "Sorting files in" if sort_mode else "Renaming files in"
+        print(f"{COLOR_CYAN}RUN{COLOR_RESET} {COLOR_DIM}{action} {target_dir}{COLOR_RESET}")
 
-    changes, log_path = process_directory(target_dir, dry_run=dry_run)
+    if sort_mode:
+        changes, log_path = process_directory_sort(target_dir, dry_run=dry_run)
+    else:
+        changes, log_path = process_directory(target_dir, dry_run=dry_run)
 
     if dry_run:
         print(f"\n{changes} files would be changed. Run with --run to apply.")

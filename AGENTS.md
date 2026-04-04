@@ -4,7 +4,7 @@
 - song -> the song's name
 - remix tag -> one of "segue", "mash", "blend", "remix", "mashup", "segway", "vs"
 - edit tag -> some phrase containing "Clean" or "Dirty", such as, "Intro - Dirty" (we dont have an exhaustive list, hopefully you can infer it from the test cases)
-- KBPM -> the camelot wheel code and the BPM
+- KBPM -> the camelot wheel code and the BPM. This can appear as `{camelot} {bpm}`, `{bpm} {camelot}`, or with the camelot code written as just `A` / `B` beside the BPM
 
 
 # GENERAL FILE NAMING OVERVIEW:
@@ -63,11 +63,11 @@ Implement the following rules into `bin/clean`, unless they say "[Implemented]" 
 
 - [Implemented] "trans" or "transition" followed by "\d+-\d" should have that second portion come first.
 
-- in the tag segments of the filename, anytime you find a 2 number separated by a dash (with out without spaces between the numbers as the dash), that means the song is a transition
+- [Implemented] in the tag segments of the filename, anytime you find a 2 number separated by a dash (with or without spaces between the numbers as the dash), that means the song is a transition, and `Transition` should be added after the numeric range if it is not already there
 
 - [Implemented] Any dashes between 2 number should always have a space before and after the dash if there is not already spaces there.
 
-- [Implemented] Anything that says "acapella intro" or "acap intro" should say "Acapella In"
+- [Implemented] -> If it contains explicitly "Acapella Intro" in the uncleaned filename, you should treat the file as if doesn't say "Acapella" when applying all other rules.
 
 - [Implemented] Anything that says "acapella outro" or "acap outro" should say "Acapella Out"
 
@@ -79,13 +79,17 @@ Implement the following rules into `bin/clean`, unless they say "[Implemented]" 
 
 - [Implemented] Edit tags always go at the end of the filename (after all other tags)
 
-- Other intro types (Hype Intro, Epic Intro, Break Intro, Clap Intro, etc.) should be preserved but wrapped in parens
+- [Implemented] Other intro types (Acapella Intro, Hype Intro, Hype In, Epic Intro, Epic In, Break Intro, Break In  etc.) should be preserved but wrapped in parens
+- [Implemented] Other intro types (Acapella Intro, Hype Intro, Hype In, Epic Intro, Epic In, Break Intro, Break In ) should add a redundant Intro to the edit tag at the end if it does not already have one there.
 
 - Other edit types (Quick Hit, Short Edit, Radio Edit, Club Edit, etc.) should be preserved but wrapped in parens
+
+- [Implemented] If the filename contains `Club Edit`, the cleaned filename should include `Intro` in the final edit tag.
 
 Explicit hard-coded formatting rules:
 
 - AAP Rocky, ASAP Rocky -> A$AP Rocky
+- ASAP Ferg -> A$AP Ferg
 - Ty Dolla Sign -> Ty Dolla $ign
 - Too Short -> Too $hort
 - Schoolboy Q -> ScHoolboy Q
@@ -114,3 +118,11 @@ Explicit hard-coded formatting rules:
 - [Inferred] Final cleanup should remove dangling dashes inside tag parens, such as `(- Dirty)` or `(JD Live -)`.
 
 - [Inferred] Files with a trailing duplicate marker like `(1)` should be treated as duplicates and deleted during rename runs; dry runs should show them as deletions.
+
+- [Inferred] When a tag group contains a vendor/remix artist plus recognized tag matter like `Slam Edit`, `Acapella`, or a transition range, the vendor should be split into its own paren group.
+
+- [Inferred] If an acapella token is followed by an additional phrase in the same tag group, that trailing phrase should be retained with the acapella tag unless another rule explicitly removes it, such as `Rob Rivera Acapella Break -> (Rob Rivera) (Acapella Break)`.
+
+- [Inferred] In transition tag groups, trailing helper phrases around the range such as `Hip Hop To House`, `VIP Flip`, `Flip`, or `Edit` should be removed once the numeric range has been normalized into a `Transition` tag.
+
+- [Inferred] House-only cleaning rules: `Clean Extended` / `Dirty Extended` should become `(Ext)` plus the final clean/dirty edit tag, `Radio Edit` should normalize to `(Original Mix)`, and House filenames should never retain `Intro` in the final edit tag.

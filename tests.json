@@ -92,17 +92,17 @@
   {
     "name": "drops epic intro text and keeps vendor with intro clean",
     "input": "Clipse ft Kendrick Lamar - Chains & Whips (DJ Nasa Epic Intro) (Clean Extended)",
-    "expected": "Clipse ft Kendrick Lamar - Chains & Whips (DJ Nasa) (Intro - Clean)"
+    "expected": "Clipse ft Kendrick Lamar - Chains & Whips (DJ Nasa) (Epic Intro) (Intro - Clean)"
   },
   {
     "name": "splits vendor from acapella intro and maps to acapella in",
     "input": "Don Toliver - Body (Muzik Junkies Acapella Intro) (Clean Extended)",
-    "expected": "Don Toliver - Body (Muzik Junkies) (Acapella In) (Clean)"
+    "expected": "Don Toliver - Body (Muzik Junkies) (Acapella Intro) (Intro - Clean)"
   },
   {
     "name": "preserves custom club edit and wraps trailing clean",
     "input": "Wisin & Yandel - Mirala Bien (HITMEN Club Edit) Clean 12A 96",
-    "expected": "Wisin x Yandel - Mirala Bien (HITMEN Club Edit) (Clean)"
+    "expected": "Wisin x Yandel - Mirala Bien (HITMEN Club Edit) (Intro - Clean)"
   },
   {
     "name": "preserves existing quick hit clean edit",
@@ -122,7 +122,7 @@
   {
     "name": "drops break intro text but keeps vendor phrase and intro clean",
     "input": "Compton Av, Steelz, Blueface & Lola Brooke ft Natalie Nunn & India Love - YAYA (SheMix) (Muzik Junkies 4 Bar Break Intro) (Clean Extended)",
-    "expected": "Compton Av x Steelz x Blueface x Lola Brooke ft Natalie Nunn x India Love - YAYA (SheMix) (Muzik Junkies 4 Bar) (Intro - Clean)"
+    "expected": "Compton Av x Steelz x Blueface x Lola Brooke ft Natalie Nunn x India Love - YAYA (SheMix) (Muzik Junkies 4 Bar) (Break Intro) (Intro - Clean)"
   },
   {
     "name": "splits vendor from jump off edit and keeps clean at end",
@@ -172,12 +172,12 @@
   {
     "name": "removes old remix word when vs adds segue",
     "input": "The Song Foundry vs 310Babii - Its Your Birthday (JD Live Blend - Hype Intro) Clean 8A 100",
-    "expected": "The Song Foundry vs 310Babii - Its Your Birthday (JD Live) (Segue) (Clean)"
+    "expected": "The Song Foundry vs 310Babii - Its Your Birthday (JD Live) (Hype Intro) (Segue) (Intro - Clean)"
   },
   {
     "name": "suppresses intro when acapella in exists",
     "input": "Tinashe - Nasty (Cesar Castilla Acapella Intro) (Clean Extended)",
-    "expected": "Tinashe - Nasty (Cesar Castilla) (Acapella In) (Clean)"
+    "expected": "Tinashe - Nasty (Cesar Castilla) (Acapella Intro) (Intro - Clean)"
   },
   {
     "name": "normalizes bare jump off tag",
@@ -192,7 +192,7 @@
   {
     "name": "maps clap in and moves dirty to end",
     "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Rassy Hype Intro) Dirty Clap In 8A 128",
-    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Rassy) (Clapapella) (Dirty)"
+    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Rassy) (Hype Intro) (Clapapella) (Intro - Dirty)"
   },
   {
     "name": "splits vendor from acapella out",
@@ -223,5 +223,45 @@
     "name": "converts word play edit to transition",
     "input": "Don Toliver vs Megan Thee Stallion - Body (DJ Nasa 94-73 Word Play Edit) (Clean Extended)",
     "expected": "Don Toliver vs Megan Thee Stallion - Body (DJ Nasa) (94 - 73 Transition) (Segue) (Clean)"
+  },
+  {
+    "name": "splits vendor from slam edit and keeps intro clean",
+    "input": "David Banner - Play (Muzik Junkies Slam Edit) (Clean Extended)",
+    "expected": "David Banner - Play (Muzik Junkies) (Slam Edit) (Intro - Clean)"
+  },
+  {
+    "name": "applies explicit artist rename for asap ferg",
+    "input": "Fergie Baby & ASAP Ferg - Good Day To Be In Harlem (CK Intro - Clean) 9A 62",
+    "expected": "Fergie Baby x A$AP Ferg - Good Day To Be In Harlem (Intro - Clean)"
+  },
+  {
+    "name": "retains trailing acapella phrase in same tag group",
+    "input": "J. Cole - Two Six (Rob Rivera Acapella Break) (Dirty Extended)",
+    "expected": "J. Cole - Two Six (Rob Rivera) (Acapella Break) (Intro - Dirty)"
+  },
+  {
+    "name": "removes kbpm when bpm precedes single letter camelot",
+    "input": "J. Cole - WHO TF IZ U (JD Live Pt.2 Only Edit) Dirty 85 A",
+    "expected": "J. Cole - WHO TF IZ U (JD Live Pt.2 Only Edit) (Dirty)"
+  },
+  {
+    "name": "promotes dashed numbers to transition and drops trailing hype in",
+    "input": "Lil Uzi Vert vs John Summit - Just Wanna Rock When The LIGHTS GO OUT (Smassh VIP Flip 150-144) Dirty Hype In 2A",
+    "expected": "Lil Uzi Vert vs John Summit - Just Wanna Rock When The LIGHTS GO OUT (Smassh) (150 - 144 Transition) (Hype In) (Segue) (Intro - Dirty)"
+  },
+  {
+    "name": "splits vendor from slam edit without dropping clean tone",
+    "input": "Megan Thee Stallion ft Yuki Chiba - Mamushi (R-You Slam Edit) (Clean Extended)",
+    "expected": "Megan Thee Stallion ft Yuki Chiba - Mamushi (R-You) (Slam Edit) (Intro - Clean)"
+  },
+  {
+    "name": "removes x to y phrase before transition range",
+    "input": "Rob49 vs Valentino Khan - WTHELLY (DJ Nasa Hip Hop To House 84-130 Edit) (Clean Extended)",
+    "expected": "Rob49 vs Valentino Khan - WTHELLY (DJ Nasa) (84 - 130 Transition) (Segue) (Clean)"
+  },
+  {
+    "name": "club edit forces intro dirty final tag",
+    "input": "DaBaby - POP DAT THANG (Alex Dynamix Jersey Club Edit) (Dirty)",
+    "expected": "DaBaby - POP DAT THANG (Alex Dynamix Jersey Club Edit) (Intro - Dirty)"
   }
 ]
