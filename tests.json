@@ -278,5 +278,10 @@
     "name": "club edit forces intro dirty final tag",
     "input": "DaBaby - POP DAT THANG (Alex Dynamix Jersey Club Edit) (Dirty)",
     "expected": "DaBaby - POP DAT THANG (Alex Dynamix Jersey Club Edit) (Intro - Dirty)"
+  },
+  {
+    "name": "'acapella in' makes Intro redundant in the edit tag",
+    "input": "Taffy, PLUTO, Party Boyz - Feeling On My Body (Remix) (DJ OD Flex Intro) Dirty Acap In 9A 75",
+    "expected": "Taffy x PLUTO x Party Boyz - Feeling On My Body (Remix) (DJ OD Flex Intro) (Acapella In) (Dirty)"
   }
 ]

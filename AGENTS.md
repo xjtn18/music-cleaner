@@ -39,8 +39,6 @@ Implement the following rules into `bin/clean`, unless they say "[Implemented]" 
 
 - [Implemented] capital CK as a word on its own, as well as the space after it, should be removed. Instances of "CK Cut" should also be removed, but this indiciates that this needs to be a "Quick Hit" variant for the edit tag.
 
-- [Implemented] Any uncleaned filename that contains the word "Intro" must have "Intro" in its final edit tag, unless the uncleaned filename also contains "Slam" or "Clap" in any of tagmatter.
-
 - [Implemented] If you find an extra second dash (with whitespace around it) in the original filename BEFORE any tag matter, this needs to be removed before you apply any other processing steps.
 
 - [Implemented] any instances of "Club Killers" should be removed.
@@ -117,7 +115,7 @@ Explicit hard-coded formatting rules:
 
 - [Inferred] If a filename contains `vs`, any pre-existing remix tags should be removed from custom tags and replaced by `(Segue)`.
 
-- [Inferred] If a cleaned filename contains `Remix`, `Segue`, or `Mash`, the edit tag should alteast contain "Intro", unless another tag like `Transition`, `Acapella In`, `Acapella Out`, `Slam Edit`, `Ext`, or `Clapapella` makes `Intro` redundant.
+- [Inferred] If a cleaned filename contains `Intro`, `Remix`, `Segue`, or `Mash`, the edit tag should alteast contain "Intro", unless another tag containing `Transition`, `Acapella In`, `Acapella Out`, `Slam`, `Clap`, `Ext`, or `Clapapella` makes `Intro` redundant.
 
 - [Inferred] Final cleanup should remove dangling dashes inside tag parens, such as `(- Dirty)` or `(JD Live -)`.
 
