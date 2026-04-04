@@ -6,94 +6,6 @@ Country/
 ├─ Quick Hit Clean/
 └─ Quick Hit Dirty/
 
-EDM/
-├─ Drum & Bass/
-│  ├─ Clean/
-│  ├─ Dirty/
-│  ├─ Intro Clean/
-│  ├─ Intro Dirty/
-│  ├─ Quick Hit Clean/
-│  └─ Quick Hit Dirty/
-├─ Dubstep/
-│  ├─ Dubstep Mash/
-│  │  ├─ Clean/
-│  │  ├─ Dirty/
-│  │  ├─ Intro Clean/
-│  │  ├─ Intro Dirty/
-│  │  ├─ Quick Hit Clean/
-│  │  └─ Quick Hit Dirty/
-│  └─ Dubstep/
-│     ├─ Clean/
-│     ├─ Dirty/
-│     ├─ Intro Clean/
-│     ├─ Intro Dirty/
-│     ├─ Quick Hit Clean/
-│     └─ Quick Hit Dirty/
-├─ Garage/
-│  ├─ Clean/
-│  ├─ Dirty/
-│  ├─ Quick Hit Clean/
-│  └─ Quick Hit Dirty/
-├─ House/
-│  ├─ Afro House/
-│  │  ├─ Clean/
-│  │  ├─ Dirty/
-│  │  ├─ Quick Hit Clean/
-│  │  └─ Quick Hit Dirty/
-│  ├─ Deep House/
-│  │  ├─ Clean/
-│  │  ├─ Dirty/
-│  │  ├─ Quick Hit Clean/
-│  │  └─ Quick Hit Dirty/
-│  ├─ Electro-Bass House/
-│  │  ├─ Clean/
-│  │  ├─ Dirty/
-│  │  ├─ Quick Hit Clean/
-│  │  └─ Quick Hit Dirty/
-│  ├─ Latin House/
-│  │  ├─ Clean/
-│  │  ├─ Dirty/
-│  │  ├─ Quick Hit Clean/
-│  │  └─ Quick Hit Dirty/
-│  ├─ Mash House/
-│  │  ├─ Electro-Bass House Mash/
-│  │  │  ├─ Clean/
-│  │  │  ├─ Dirty/
-│  │  │  ├─ Quick Hit Clean/
-│  │  │  └─ Quick Hit Dirty/
-│  │  └─ Tech House Mash/
-│  │     ├─ Clean/
-│  │     ├─ Dirty/
-│  │     ├─ Quick Hit Clean/
-│  │     └─ Quick Hit Dirty/
-│  └─ Tech House/
-│     ├─ Clean/
-│     ├─ Dirty/
-│     ├─ Quick Hit Clean/
-│     └─ Quick Hit Dirty/
-├─ Jersey Club/
-│  ├─ Clean/
-│  ├─ Dirty/
-│  ├─ Intro Clean/
-│  ├─ Intro Dirty/
-│  ├─ Quick Hit Clean/
-│  └─ Quick Hit Dirty/
-└─ Trap/
-   ├─ Trap Mash/
-   │  ├─ Clean/
-   │  ├─ Dirty/
-   │  ├─ Intro Clean/
-   │  ├─ Intro Dirty/
-   │  ├─ Quick Hit Clean/
-   │  └─ Quick Hit Dirty/
-   └─ Trap/
-      ├─ Clean/
-      ├─ Dirty/
-      ├─ Intro Clean/
-      ├─ Intro Dirty/
-      ├─ Quick Hit Clean/
-      └─ Quick Hit Dirty/
-
 Hip Hop/
 ├─ Clean/
 ├─ Dirty/
@@ -101,6 +13,7 @@ Hip Hop/
 ├─ Intro Dirty/
 ├─ Quick Hit Clean/
 └─ Quick Hit Dirty/
+
 Hip Hop Tools/
 ├─ Acapellas/
 │  ├─ Acapella In & Out/
