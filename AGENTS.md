@@ -126,3 +126,22 @@ Explicit hard-coded formatting rules:
 - [Inferred] In transition tag groups, trailing helper phrases around the range such as `Hip Hop To House`, `VIP Flip`, `Flip`, or `Edit` should be removed once the numeric range has been normalized into a `Transition` tag.
 
 - [Inferred] House-only cleaning rules: `Clean Extended` / `Dirty Extended` should become `(Ext)` plus the final clean/dirty edit tag, `Radio Edit` should normalize to `(Original Mix)`, and House filenames should never retain `Intro` in the final edit tag.
+
+
+# SORT MODE RULES:
+
+- [Implemented] `bin/clean` supports a `--sort` mode that sorts files into subfolders instead of renaming them in place.
+
+- [Implemented] Sort mode should only sort by the tag categories represented in `file_structure.txt`.
+
+- [Implemented] Sort mode should ignore any music inside a folder named `EDM`, at any depth.
+
+- [Implemented] Sort dry runs should show the original file path, the implicitly cleaned filename, and the destination path the file would be moved to.
+
+- [Implemented] Sort dry runs should perform an implicit clean first, and the destination path should use that cleaned filename.
+
+- [Implemented] In `Hip Hop`, if a filename matches one of the tool categories from the `Hip Hop Tools` section of `file_structure.txt`, the file should be moved out of `Hip Hop` and into `Hip Hop Tools` in the corresponding subfolder based on its edit tag.
+
+- [Implemented] Hip Hop tool sorting should recognize these categories from cleaned tags: `Acapella`, `Acapella In`, `Acapella In & Out`, `Acapella Out`, `Clapapella`, `Instrumental`, `Jump Off Edit`, `Mash`, `Segue`, `Slam Edit`, and `Transition`.
+
+- [Implemented] Files that do not match a `Hip Hop Tools` category should remain under their genre root and move only into the appropriate leaf edit-tag folder.
