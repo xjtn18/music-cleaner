@@ -82,7 +82,7 @@ Implement the following rules into `bin/clean`, unless they say "[Implemented]" 
 - [Implemented] Other intro types (Acapella Intro, Hype Intro, Hype In, Epic Intro, Epic In, Break Intro, Break In  etc.) should be preserved but wrapped in parens
 - [Implemented] Other intro types (Acapella Intro, Hype Intro, Hype In, Epic Intro, Epic In, Break Intro, Break In ) should add a redundant Intro to the edit tag at the end if it does not already have one there.
 
-- Other edit types (Quick Hit, Short Edit, Radio Edit, Club Edit, etc.) should be preserved but wrapped in parens
+- Other edit types (Quick Hit, Short Edit, Club Edit, etc.) should be preserved but wrapped in parens. `Radio Edit` is excluded from this set and should follow the House-only rule below.
 
 - [Implemented] If the filename contains `Club Edit`, the cleaned filename should include `Intro` in the final edit tag.
 

@@ -299,6 +299,9 @@ def apply_edit_from_text(state, text):
         add_main_tag(state, "Original Mix")
         return True
 
+    if re.fullmatch(r"radio\s+edit", lower):
+        return True
+
     if re.fullmatch(r"(clean|dirty)", lower):
         set_edit(state, kind="plain", tone=tone)
         return True
