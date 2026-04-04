@@ -191,6 +191,7 @@ def normalize_artist_segment(artist):
     artist = re.sub(r"\bfeat\.?\b", "ft", artist, flags=re.IGNORECASE)
     artist = re.sub(r"\s*,\s*", " x ", artist)
     artist = re.sub(r"\s*&\s*", " x ", artist)
+    artist = re.sub(r"(?:^|\s)x(?:\s+x)+(?:\s|$)", " x ", artist)
     artist = normalize_artist_names(artist)
     return normalize_spaces(artist)
 
