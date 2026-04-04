@@ -65,6 +65,21 @@
     "expected": "50 Cent - I Get It In (Intro - Clean)"
   },
   {
+    "name": "source intro forces final intro tag",
+    "input": "J Balvin - Tonto (DJ OD Hype Intro) Clean 4A 98",
+    "expected": "J Balvin - Tonto (DJ OD) (Hype Intro) (Intro - Clean)"
+  },
+  {
+    "name": "source intro does not force intro for slam tags",
+    "input": "David Banner - Play (Muzik Junkies Slam Intro) Clean 8A 98",
+    "expected": "David Banner - Play (Muzik Junkies) (Slam Edit) (Clean)"
+  },
+  {
+    "name": "removes extra second dash before tag matter",
+    "input": "50 Cent - I Get It In - (DJ OD) Clean 8A 103",
+    "expected": "50 Cent - I Get It In (DJ OD) (Clean)"
+  },
+  {
     "name": "splits transition vendor tag and quick hit clean edit",
     "input": "50 Cent ft Governor - Do You Think About Me (Rob Rivera Transition 126-94) (Clean Short Edit)",
     "expected": "50 Cent ft Governor - Do You Think About Me (Rob Rivera) (126 - 94 Transition) (Quick Hit Clean)"

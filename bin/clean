@@ -60,6 +60,8 @@ class FilenameState:
     in_house: bool = False
     explicit_intro_edit: bool = False
     explicit_acapella_intro_source: bool = False
+    source_has_intro: bool = False
+    source_has_slam_or_clap_tagmatter: bool = False
 
 
 def normalize_spaces(text):
@@ -136,8 +138,12 @@ def has_redundant_intro_tag(state):
 def harmonize_edit_tag(state):
     if not state.edit_tone:
         return
-    if state.in_house and state.edit_kind == "intro":
-        state.edit_kind = "plain"
+    if state.in_house:
+        if state.edit_kind == "intro":
+            state.edit_kind = "plain"
+        return
+    if state.source_has_intro and not state.source_has_slam_or_clap_tagmatter and state.edit_kind in (None, "plain"):
+        state.edit_kind = "intro"
         return
     has_redundant_intro = has_redundant_intro_tag(state)
     suppressors = intro_suppressor_tags(state)
@@ -201,6 +207,14 @@ def normalize_song_text(song):
     return normalize_spaces(song)
 
 
+def remove_extra_predash_song_dash(rest):
+    first_paren = rest.find("(")
+    prefix = rest if first_paren == -1 else rest[:first_paren]
+    suffix = "" if first_paren == -1 else rest[first_paren:]
+    prefix = re.sub(r"\s+-\s+", " ", prefix)
+    return normalize_spaces(prefix + suffix)
+
+
 def split_filename(filename):
     if " - " not in filename:
         cleaned = normalize_artist_names(normalize_spaces(filename))
@@ -208,6 +222,7 @@ def split_filename(filename):
 
     artist, rest = filename.split(" - ", 1)
     artist = normalize_artist_segment(artist)
+    rest = remove_extra_predash_song_dash(rest)
 
     chunk_matches = list(re.finditer(r"\([^()]*\)", rest))
     chunks = []
@@ -587,12 +602,15 @@ def consume_free_text(state, text):
 
 
 def derive_state(filename, in_house=False):
+    tagmatter_source = filename.split(" - ", 1)[1] if " - " in filename else filename
     parsed = split_filename(filename)
     state = FilenameState(
         artist=parsed.artist,
         song=parsed.song,
         in_house=in_house,
         explicit_acapella_intro_source=re.search(r"\bacapella\s+intro\b", filename, flags=re.IGNORECASE) is not None,
+        source_has_intro=re.search(r"\bintro\b", tagmatter_source, flags=re.IGNORECASE) is not None,
+        source_has_slam_or_clap_tagmatter=re.search(r"\b(slam|clap)\b", tagmatter_source, flags=re.IGNORECASE) is not None,
     )
 
     tags = parsed.main_tags

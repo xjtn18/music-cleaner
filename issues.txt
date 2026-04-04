@@ -1,7 +1,6 @@
 Concerns and inferred rules while prioritizing `tests.json` over `AGENTS.md`:
 
 - `AGENTS.md` does not document that bare trailing `Clean` or `Dirty` should become parenthesized final edit tags.
-- `AGENTS.md` does not document `CK Cut -> Quick Hit`.
 - `AGENTS.md` does not document `Quick Hitter Edit` behaving like a `Quick Hit` edit.
 - Verified tests imply custom tags like `BRDWY Edit`, `Cheyenne Giles Remix`, and `Cheyenne Giles Set Edit` should remain intact even when they contain words like `Edit` or `Remix`.
 - `Clean Extended` has an ordering-sensitive interaction with `Slam Edit`: explicit `Clean Extended` / `Dirty Extended` should still become `Intro - Clean` / `Intro - Dirty` for slam edits, while intro suppression still applies to tags like `Acapella In`, `Clapapella`, and `Transition`.

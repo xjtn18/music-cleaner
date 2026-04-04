@@ -37,7 +37,11 @@ Implement the following rules into `bin/clean`, unless they say "[Implemented]" 
 
 - [Implemented] if it has the KBPM, remove it
 
-- [Implemented] capital CK as a word on its own, as well as the space after it, should be removed.
+- [Implemented] capital CK as a word on its own, as well as the space after it, should be removed. Instances of "CK Cut" should also be removed, but this indiciates that this needs to be a "Quick Hit" variant for the edit tag.
+
+- [Implemented] Any uncleaned filename that contains the word "Intro" must have "Intro" in its final edit tag, unless the uncleaned filename also contains "Slam" or "Clap" in any of tagmatter.
+
+- [Implemented] If you find an extra second dash (with whitespace around it) in the original filename BEFORE any tag matter, this needs to be removed before you apply any other processing steps.
 
 - [Implemented] any instances of "Club Killers" should be removed.
 
