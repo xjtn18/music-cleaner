@@ -1147,6 +1147,17 @@ def show_test_diffs(test_file):
     print(f"{len(tests)} test diffs shown.")
 
 
+def is_unsafe_target_dir(target_dir):
+    raw = target_dir.strip()
+    if raw in {".", ".."}:
+        return True
+
+    resolved_target = Path(target_dir).resolve()
+    cwd = Path.cwd().resolve()
+    parent = cwd.parent
+    return resolved_target in {cwd, parent}
+
+
 def main():
     if len(sys.argv) > 1 and sys.argv[1] in ("--test-diff", "-d"):
         test_file = sys.argv[2] if len(sys.argv) > 2 else str(REPO_ROOT / "tests.json")
@@ -1191,6 +1202,11 @@ def main():
     target_dir = sys.argv[1]
     dry_run = "--run" not in sys.argv and "-r" not in sys.argv
     sort_mode = "--sort" in sys.argv or "-s" in sys.argv
+
+    if is_unsafe_target_dir(target_dir):
+        print("Error: refusing to run against '.' , '..', or paths that resolve to the current or parent directory.")
+        print("Pass a specific target folder instead.")
+        sys.exit(1)
 
     if dry_run:
         print(f"{COLOR_CYAN}DRY RUN{COLOR_RESET} {COLOR_DIM}No changes will be made. Use --run to apply changes.{COLOR_RESET}")
