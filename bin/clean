@@ -1135,7 +1135,7 @@ def show_test_diffs(test_file):
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "--test-diff":
+    if len(sys.argv) > 1 and sys.argv[1] in ("--test-diff", "-d"):
         test_file = sys.argv[2] if len(sys.argv) > 2 else str(REPO_ROOT / "tests.json")
         show_test_diffs(test_file)
         return
@@ -1145,7 +1145,7 @@ def main():
         success = run_tests(test_file)
         sys.exit(0 if success else 1)
 
-    if len(sys.argv) > 1 and sys.argv[1] == "--revert":
+    if len(sys.argv) > 1 and sys.argv[1] in ("--revert", "-v"):
         log_file = None
         if len(sys.argv) > 2:
             log_file = sys.argv[2]
@@ -1166,18 +1166,18 @@ def main():
 
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  clean --test [file]             Run tests")
-        print("  clean --test-diff [file]        Preview input vs expected test diffs")
+        print("  clean --test|-t [file]          Run tests")
+        print("  clean --test-diff|-d [file]     Preview input vs expected test diffs")
         print("  clean <dir>                     Dry run (preview changes)")
-        print("  clean <dir> --run               Actually rename files")
-        print("  clean <dir> --sort              Dry run sort into folders")
-        print("  clean <dir> --sort --run        Actually sort into folders")
-        print("  clean --revert [log]            Revert from log or latest log")
+        print("  clean <dir> --run|-r            Actually rename files")
+        print("  clean <dir> --sort|-s           Dry run sort into folders")
+        print("  clean <dir> --sort|-s --run|-r  Actually sort into folders")
+        print("  clean --revert|-v [log]         Revert from log or latest log")
         sys.exit(1)
 
     target_dir = sys.argv[1]
-    dry_run = "--run" not in sys.argv
-    sort_mode = "--sort" in sys.argv
+    dry_run = "--run" not in sys.argv and "-r" not in sys.argv
+    sort_mode = "--sort" in sys.argv or "-s" in sys.argv
 
     if dry_run:
         print(f"{COLOR_CYAN}DRY RUN{COLOR_RESET} {COLOR_DIM}No changes will be made. Use --run to apply changes.{COLOR_RESET}")
