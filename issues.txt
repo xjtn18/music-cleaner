@@ -1,15 +1,7 @@
 Concerns and inferred rules while prioritizing `tests.json` over `AGENTS.md`:
 
-- `AGENTS.md` says other intro types should be preserved, but verified tests collapse some source intro phrases like `Epic Intro` and `Break Intro` into vendor/custom tags plus a final edit tag instead of preserving the intro phrase itself.
-- `AGENTS.md` does not document that commas and ampersands in the artist segment should become ` x `.
 - `AGENTS.md` does not document that bare trailing `Clean` or `Dirty` should become parenthesized final edit tags.
-- `AGENTS.md` does not document `Extended Mix -> Ext`.
 - `AGENTS.md` does not document `CK Cut -> Quick Hit`.
 - `AGENTS.md` does not document `Quick Hitter Edit` behaving like a `Quick Hit` edit.
-- `AGENTS.md` does not document `Trans` as shorthand for `Transition`.
 - Verified tests imply custom tags like `BRDWY Edit`, `Cheyenne Giles Remix`, and `Cheyenne Giles Set Edit` should remain intact even when they contain words like `Edit` or `Remix`.
-- Verified tests imply chunks like `DJ Nasa Clap Intro` and `Rob Rivera Transition 126-94` should split into multiple normalized tags.
 - `Clean Extended` has an ordering-sensitive interaction with `Slam Edit`: explicit `Clean Extended` / `Dirty Extended` should still become `Intro - Clean` / `Intro - Dirty` for slam edits, while intro suppression still applies to tags like `Acapella In`, `Clapapella`, and `Transition`.
-
-- The new `Club Edit -> Intro` rule supersedes the older expectation that custom club-edit files like `Wisin & Yandel - Mirala Bien (HITMEN Club Edit) Clean ...` should end with plain `(Clean)`.
-- The changed `Acapella Intro` rule now allows cleaned filenames like `(Acapella In) (Intro - Clean)`, but `file_structure.txt` only defines `Clean` / `Dirty` / `Quick Hit` leaves under `Hip Hop Tools/Acapellas/Acapella In`, so sort-folder semantics for those files remain underspecified.
