@@ -1,6 +1,7 @@
 [
   {
     "name": "removes trailing KBPM from intro dirty filename",
+    "where": "Hip Hop",
     "input": "50 Cent - I Get It In (Intro Dirty) 1A 103",
     "expected": "50 Cent - I Get It In (Intro - Dirty)"
   },
@@ -20,9 +21,22 @@
     "expected": "50 Cent x Nate Dogg vs Ayra Starr - 21 Questions (Triple A Edit 'Rush') (Segue) (Intro - Dirty)"
   },
   {
-    "name": "removes club killers and converts slam intro to slam edit",
+    "name": "house slam intro maps to slam edit without intro",
+    "house": true,
     "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Club Killers Slam Intro) Dirty 8A 128",
     "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Slam Edit) (Dirty)"
+  },
+  {
+    "name": "non-house bare intro becomes intro dirty",
+    "house": false,
+    "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Club Killers Intro) Dirty 8A 128",
+    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Intro - Dirty)"
+  },
+  {
+    "name": "house bare intro drops intro from final edit",
+    "house": true,
+    "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Club Killers Intro) Dirty 8A 128",
+    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Dirty)"
   },
   {
     "name": "splits dj name from clap intro and maps to clapapella",
@@ -105,12 +119,12 @@
     "expected": "J Balvin x Ryan Castro x DJ Snake - Tonto (DJ OD) (Clean)"
   },
   {
-    "name": "drops epic intro text and keeps vendor with intro clean",
+    "name": "preserves epic intro tag and keeps vendor with intro clean",
     "input": "Clipse ft Kendrick Lamar - Chains & Whips (DJ Nasa Epic Intro) (Clean Extended)",
     "expected": "Clipse ft Kendrick Lamar - Chains & Whips (DJ Nasa) (Epic Intro) (Intro - Clean)"
   },
   {
-    "name": "splits vendor from acapella intro and maps to acapella in",
+    "name": "splits vendor from acapella intro and preserves intro tag",
     "input": "Don Toliver - Body (Muzik Junkies Acapella Intro) (Clean Extended)",
     "expected": "Don Toliver - Body (Muzik Junkies) (Acapella Intro) (Intro - Clean)"
   },
@@ -135,7 +149,7 @@
     "expected": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys' Edit) (Clean)"
   },
   {
-    "name": "drops break intro text but keeps vendor phrase and intro clean",
+    "name": "preserves break intro tag and keeps vendor phrase with intro clean",
     "input": "Compton Av, Steelz, Blueface & Lola Brooke ft Natalie Nunn & India Love - YAYA (SheMix) (Muzik Junkies 4 Bar Break Intro) (Clean Extended)",
     "expected": "Compton Av x Steelz x Blueface x Lola Brooke ft Natalie Nunn x India Love - YAYA (SheMix) (Muzik Junkies 4 Bar) (Break Intro) (Intro - Clean)"
   },
@@ -190,7 +204,7 @@
     "expected": "The Song Foundry vs 310Babii - Its Your Birthday (JD Live) (Hype Intro) (Segue) (Intro - Clean)"
   },
   {
-    "name": "suppresses intro when acapella in exists",
+    "name": "preserves acapella intro tag with intro clean",
     "input": "Tinashe - Nasty (Cesar Castilla Acapella Intro) (Clean Extended)",
     "expected": "Tinashe - Nasty (Cesar Castilla) (Acapella Intro) (Intro - Clean)"
   },
@@ -240,9 +254,9 @@
     "expected": "Don Toliver vs Megan Thee Stallion - Body (DJ Nasa) (94 - 73 Transition) (Segue) (Clean)"
   },
   {
-    "name": "splits vendor from slam edit and keeps intro clean",
+    "name": "splits vendor from slam edit and keeps clean tone",
     "input": "David Banner - Play (Muzik Junkies Slam Edit) (Clean Extended)",
-    "expected": "David Banner - Play (Muzik Junkies) (Slam Edit) (Intro - Clean)"
+    "expected": "David Banner - Play (Muzik Junkies) (Slam Edit) (Clean)"
   },
   {
     "name": "applies explicit artist rename for asap ferg",
@@ -260,9 +274,9 @@
     "expected": "J. Cole - WHO TF IZ U (JD Live Pt.2 Only Edit) (Dirty)"
   },
   {
-    "name": "promotes dashed numbers to transition and drops trailing hype in",
+    "name": "promotes dashed numbers to transition and preserves hype in",
     "input": "Lil Uzi Vert vs John Summit - Just Wanna Rock When The LIGHTS GO OUT (Smassh VIP Flip 150-144) Dirty Hype In 2A",
-    "expected": "Lil Uzi Vert vs John Summit - Just Wanna Rock When The LIGHTS GO OUT (Smassh) (150 - 144 Transition) (Hype In) (Segue) (Intro - Dirty)"
+    "expected": "Lil Uzi Vert vs John Summit - Just Wanna Rock When The LIGHTS GO OUT (Smassh) (150 - 144 Transition) (Hype In) (Segue) (Dirty)"
   },
   {
     "name": "splits vendor from slam edit without dropping clean tone",

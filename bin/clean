@@ -142,7 +142,8 @@ def harmonize_edit_tag(state):
         return
     suppressors = intro_suppressor_tags(state)
     if suppressors:
-        state.edit_kind = "plain"
+        if state.edit_kind == "intro":
+            state.edit_kind = "plain"
         return
     has_redundant_intro = has_redundant_intro_tag(state)
     if has_redundant_intro and state.edit_kind == "plain":
@@ -441,6 +442,10 @@ def normalize_acapella_tag(state, text):
 def normalize_special_intro_tag(state, text):
     tone = parse_tone(text)
     text = remove_discarded_tag_phrases(strip_tone_words(text))
+
+    if re.fullmatch(r"intro", text, flags=re.IGNORECASE):
+        set_edit(state, kind="intro", tone=tone)
+        return True
 
     for pattern, replacement in [
         (r"\bparty\s+starter\b", "Clapapella"),
@@ -1111,7 +1116,7 @@ def run_tests(test_file):
         tests = json.load(f)
 
     for test in tests:
-        result = clean_filename(test["input"], in_house=test.get("in_house", False))
+        result = clean_filename(test["input"], in_house=test.get("house", False))
         if result == test["expected"]:
             passed += 1
         else:
