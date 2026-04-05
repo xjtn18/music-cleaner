@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import base64
+import errno
 import json
 import os
 import re
@@ -91,6 +92,17 @@ def normalize_spaces(text):
 
 def canonical_filename_key(name):
     return unicodedata.normalize("NFC", name).casefold()
+
+
+def is_existing_destination_error(error):
+    if isinstance(error, FileExistsError):
+        return True
+    if isinstance(error, OSError):
+        if getattr(error, "winerror", None) == 183:
+            return True
+        if getattr(error, "errno", None) == errno.EEXIST:
+            return True
+    return False
 
 
 def title_case_phrase(text):
@@ -1051,7 +1063,9 @@ def process_directory(directory, dry_run=True):
                 if not dry_run:
                     try:
                         os.rename(original_path, new_path)
-                    except FileExistsError:
+                    except OSError as error:
+                        if not is_existing_destination_error(error):
+                            raise
                         os.remove(original_path)
                         delete_preview = format_delete_preview_block(original_stem, "collision")
                         log_entries.append(delete_preview)
