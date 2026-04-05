@@ -140,14 +140,11 @@ def harmonize_edit_tag(state):
         if state.edit_kind == "intro":
             state.edit_kind = "plain"
         return
-    has_redundant_intro = has_redundant_intro_tag(state)
     suppressors = intro_suppressor_tags(state)
     if suppressors:
-        if state.edit_kind == "intro":
-            if not has_redundant_intro and (not state.explicit_intro_edit or any(tag != "Slam Edit" for tag in suppressors)):
-                state.edit_kind = "plain"
-        if state.edit_kind != "intro" and not has_redundant_intro:
-            return
+        state.edit_kind = "plain"
+        return
+    has_redundant_intro = has_redundant_intro_tag(state)
     if has_redundant_intro and state.edit_kind == "plain":
         state.edit_kind = "intro"
     if has_club_edit_tag(state) and state.edit_kind == "plain":

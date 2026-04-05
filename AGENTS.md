@@ -117,6 +117,8 @@ Explicit hard-coded formatting rules:
 
 - [Inferred] If a cleaned filename contains `Intro`, `Remix`, `Segue`, or `Mash`, the edit tag should alteast contain "Intro", unless another tag containing `Transition`, `Acapella In`, `Acapella Out`, `Slam`, `Clap`, `Ext`, or `Clapapella` makes `Intro` redundant.
 
+- [Implemented] `Intro` negation rules supercede `Intro` addition rules.
+
 - [Inferred] Final cleanup should remove dangling dashes inside tag parens, such as `(- Dirty)` or `(JD Live -)`.
 
 - [Inferred] Files with a trailing duplicate marker like `(1)` should be treated as duplicates and deleted during rename runs; dry runs should show them as deletions.

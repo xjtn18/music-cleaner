@@ -207,7 +207,7 @@
   {
     "name": "maps clap in and moves dirty to end",
     "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Rassy Hype Intro) Dirty Clap In 8A 128",
-    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Rassy) (Hype Intro) (Clapapella) (Intro - Dirty)"
+    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (Rassy) (Hype Intro) (Clapapella) (Dirty)"
   },
   {
     "name": "splits vendor from acapella out",
@@ -267,7 +267,7 @@
   {
     "name": "splits vendor from slam edit without dropping clean tone",
     "input": "Megan Thee Stallion ft Yuki Chiba - Mamushi (R-You Slam Edit) (Clean Extended)",
-    "expected": "Megan Thee Stallion ft Yuki Chiba - Mamushi (R-You) (Slam Edit) (Intro - Clean)"
+    "expected": "Megan Thee Stallion ft Yuki Chiba - Mamushi (R-You) (Slam Edit) (Clean)"
   },
   {
     "name": "removes x to y phrase before transition range",
@@ -288,5 +288,10 @@
     "name": "file with typo extra connector in artist name should be consolidated",
     "input": "Fredo, Burna Boy, & Steel Banglez - Birthday (Triple A Edit 'Burna Boy Only') (Clean Extended)",
     "expected": "Fredo x Burna Boy x Steel Banglez - Birthday (Triple A Edit 'Burna Boy Only') (Intro - Clean)"
+  },
+  {
+    "name": "slam edit negates any other rule that might try to add intro to the edit tag",
+    "input": "Snoop Dogg & Wiz Khalifa ft Bruno Mars - Young, Wild & Free (Rob Rivera Slam Edit) (Dirty Extended)",
+    "expected": "Snoop Dogg x Wiz Khalifa ft Bruno Mars - Young, Wild & Free (Rob Rivera) (Slam Edit) (Dirty)"
   }
 ]
