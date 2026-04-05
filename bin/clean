@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 import zlib
 from datetime import datetime
 from difflib import SequenceMatcher
@@ -86,6 +87,10 @@ class FilenameState:
 
 def normalize_spaces(text):
     return re.sub(r"\s+", " ", text).strip()
+
+
+def canonical_filename_key(name):
+    return unicodedata.normalize("NFC", name).casefold()
 
 
 def title_case_phrase(text):
@@ -994,6 +999,7 @@ def process_directory(directory, dry_run=True):
     log_operations = []
     for root, _, files in os.walk(directory):
         occupied_names = set(files)
+        occupied_keys = {canonical_filename_key(name) for name in files}
         for filename in files:
             original_path = os.path.join(root, filename)
             in_house = is_house_path(original_path)
@@ -1012,17 +1018,20 @@ def process_directory(directory, dry_run=True):
                         "after": DELETED_SENTINEL,
                     })
                 occupied_names.discard(filename)
+                occupied_keys.discard(canonical_filename_key(filename))
                 changes_made += 1
                 continue
 
             cleaned = clean_filesystem_name(filename, in_house=in_house)
             if cleaned != filename:
                 occupied_names.discard(filename)
+                occupied_keys.discard(canonical_filename_key(filename))
                 new_path = os.path.join(root, cleaned)
                 original_stem, _ = os.path.splitext(filename)
                 cleaned_stem, _ = os.path.splitext(cleaned)
                 preview_block = format_preview_block(original_stem, cleaned_stem)
-                if cleaned in occupied_names:
+                cleaned_key = canonical_filename_key(cleaned)
+                if cleaned_key in occupied_keys or os.path.exists(new_path):
                     delete_preview = format_delete_preview_block(original_stem, "collision")
                     if dry_run:
                         print(delete_preview)
@@ -1040,13 +1049,25 @@ def process_directory(directory, dry_run=True):
                     print(preview_block)
                     print()
                 if not dry_run:
-                    os.rename(original_path, new_path)
+                    try:
+                        os.rename(original_path, new_path)
+                    except FileExistsError:
+                        os.remove(original_path)
+                        delete_preview = format_delete_preview_block(original_stem, "collision")
+                        log_entries.append(delete_preview)
+                        log_operations.append({
+                            "before": os.path.relpath(original_path, directory),
+                            "after": DELETED_SENTINEL,
+                        })
+                        changes_made += 1
+                        continue
                     log_entries.append(preview_block)
                     log_operations.append({
                         "before": os.path.relpath(original_path, directory),
                         "after": os.path.relpath(new_path, directory),
                     })
                 occupied_names.add(cleaned)
+                occupied_keys.add(cleaned_key)
                 changes_made += 1
     log_path = None
     if not dry_run and log_entries:
