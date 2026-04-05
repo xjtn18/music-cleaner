@@ -30,6 +30,28 @@ REDUNDANT_INTRO_TAGS = {
     "Break Intro",
     "Break In",
 }
+STANDARD_MAIN_TAGS = {
+    "Segue",
+    "Mash",
+    "Remix",
+    "Slam Edit",
+    "Clapapella",
+    "Ext",
+    "Instrumental",
+    "Original Mix",
+    "Jump Off Edit",
+    "Acapella",
+    "Acapella In",
+    "Acapella Out",
+    "Acapella In & Out",
+    "Acapella Intro",
+    "Hype Intro",
+    "Hype In",
+    "Epic Intro",
+    "Epic In",
+    "Break Intro",
+    "Break In",
+}
 
 COLOR_RESET = "\033[0m"
 COLOR_DIM = "\033[2m"
@@ -133,6 +155,22 @@ def has_redundant_intro_tag(state):
     return any(tag in REDUNDANT_INTRO_TAGS for tag in state.main_tags)
 
 
+def is_standard_main_tag(tag):
+    if tag in STANDARD_MAIN_TAGS:
+        return True
+    if tag.endswith(" Transition"):
+        return True
+    if re.fullmatch(r"Acapella (?:In|Out|Intro) .+", tag):
+        return True
+    if re.fullmatch(r"Acapella .+", tag):
+        return True
+    return False
+
+
+def has_implicit_remix_artist_tag(state):
+    return any(not is_standard_main_tag(tag) for tag in state.main_tags)
+
+
 def harmonize_edit_tag(state):
     if not state.edit_tone:
         return
@@ -147,6 +185,8 @@ def harmonize_edit_tag(state):
         return
     has_redundant_intro = has_redundant_intro_tag(state)
     if has_redundant_intro and state.edit_kind == "plain":
+        state.edit_kind = "intro"
+    if has_implicit_remix_artist_tag(state) and state.edit_kind == "plain":
         state.edit_kind = "intro"
     if has_club_edit_tag(state) and state.edit_kind == "plain":
         state.edit_kind = "intro"

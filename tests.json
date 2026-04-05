@@ -1,7 +1,6 @@
 [
   {
     "name": "removes trailing KBPM from intro dirty filename",
-    "where": "Hip Hop",
     "input": "50 Cent - I Get It In (Intro Dirty) 1A 103",
     "expected": "50 Cent - I Get It In (Intro - Dirty)"
   },
@@ -91,7 +90,7 @@
   {
     "name": "removes extra second dash before tag matter",
     "input": "50 Cent - I Get It In - (DJ OD) Clean 8A 103",
-    "expected": "50 Cent - I Get It In (DJ OD) (Clean)"
+    "expected": "50 Cent - I Get It In (DJ OD) (Intro - Clean)"
   },
   {
     "name": "splits transition vendor tag and quick hit clean edit",
@@ -114,7 +113,13 @@
     "expected": "Dr. Dre - Song"
   },
   {
-    "name": "wraps loose clean text after custom dj tag",
+    "name": "wraps loose clean text after custom dj tag and adds intro because remix artist exists",
+    "input": "J Balvin, Ryan Castro & DJ Snake - Tonto (DJ OD) Clean 4A 98",
+    "expected": "J Balvin x Ryan Castro x DJ Snake - Tonto (DJ OD) (Intro - Clean)"
+  },
+  {
+    "name": "wraps loose clean text after custom dj tag, negates intro even though remix artist exists becase in house",
+    "house": true,
     "input": "J Balvin, Ryan Castro & DJ Snake - Tonto (DJ OD) Clean 4A 98",
     "expected": "J Balvin x Ryan Castro x DJ Snake - Tonto (DJ OD) (Clean)"
   },
@@ -144,9 +149,9 @@
     "expected": "Cardi B - Errtime (Triple A Edit 'Snl Intro') (Quick Hit Clean)"
   },
   {
-    "name": "maps clean radio edit to plain clean",
+    "name": "maps clean radio edit to plain clean and adds intro because remix artist exists",
     "input": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys' Edit) (Clean Radio Edit)",
-    "expected": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys' Edit) (Clean)"
+    "expected": "50 Cent - Just A Lil Bit (DJ Kayla G 'City Boys' Edit) (Intro - Clean)"
   },
   {
     "name": "preserves break intro tag and keeps vendor phrase with intro clean",
@@ -159,9 +164,9 @@
     "expected": "Cheyenne Giles ft Kris Kiss - Been Good (DJ Nasa) (Jump Off Edit) (Clean)"
   },
   {
-    "name": "preserves custom set edit and maps radio edit to clean",
+    "name": "preserves custom set edit and maps radio edit to clean and adds intro because remix artist exists",
     "input": "Cheyenne Giles, Knock2 & John Newman - LOVE ME SOME SUGAR (Cheyenne Giles Set Edit) (Clean Radio Edit)",
-    "expected": "Cheyenne Giles x Knock2 x John Newman - LOVE ME SOME SUGAR (Cheyenne Giles Set Edit) (Clean)"
+    "expected": "Cheyenne Giles x Knock2 x John Newman - LOVE ME SOME SUGAR (Cheyenne Giles Set Edit) (Intro - Clean)"
   },
   {
     "name": "handles three digit transition range with quick hit clean",
@@ -271,7 +276,7 @@
   {
     "name": "removes kbpm when bpm precedes single letter camelot",
     "input": "J. Cole - WHO TF IZ U (JD Live Pt.2 Only Edit) Dirty 85 A",
-    "expected": "J. Cole - WHO TF IZ U (JD Live Pt.2 Only Edit) (Dirty)"
+    "expected": "J. Cole - WHO TF IZ U (JD Live Pt.2 Only Edit) (Intro - Dirty)"
   },
   {
     "name": "promotes dashed numbers to transition and preserves hype in",
