@@ -166,7 +166,7 @@
   {
     "name": "preserves custom set edit and maps radio edit to clean and adds intro because remix artist exists",
     "input": "Cheyenne Giles, Knock2 & John Newman - LOVE ME SOME SUGAR (Cheyenne Giles Set Edit) (Clean Radio Edit)",
-    "expected": "Cheyenne Giles x Knock2 x John Newman - LOVE ME SOME SUGAR (Cheyenne Giles Set Edit) (Intro - Clean)"
+    "expected": "Cheyenne Giles x Knock2 x John Newman - LOVE ME SOME SUGAR (Cheyenne Giles) (Set Edit) (Intro - Clean)"
   },
   {
     "name": "handles three digit transition range with quick hit clean",
@@ -176,7 +176,7 @@
   {
     "name": "preserves custom remix tag and maps short edit to quick hit",
     "input": "Devault - Feels Like Us (Cheyenne Giles Remix) (Clean Short Edit)",
-    "expected": "Devault - Feels Like Us (Cheyenne Giles Remix) (Quick Hit Clean)"
+    "expected": "Devault - Feels Like Us (Cheyenne Giles) (Remix) (Quick Hit Clean)"
   },
   {
     "name": "splits VIP quick hitter edit into VIP tag and quick hit clean",
@@ -222,6 +222,16 @@
     "name": "expands inst to instrumental",
     "input": "Tory Lanez - Planet Bass NBLYB (Inst) 2A 135",
     "expected": "Tory Lanez - Planet Bass NBLYB (Instrumental)"
+  },
+  {
+    "name": "normalizes connectors in extracted remix artist tag",
+    "input": "Tinashe - Nasty (Akon, Ne-Yo & Fabolous Acapella Out) (Clean Extended)",
+    "expected": "Tinashe - Nasty (Akon x Ne-Yo x Fabolous) (Acapella Out) (Clean)"
+  },
+  {
+    "name": "instrumental suppresses final edit tag",
+    "input": "Berner & Babyface Ray - Reminiscing (Instrumental) Dirty 3A 98",
+    "expected": "Berner x Babyface Ray - Reminiscing (Instrumental)"
   },
   {
     "name": "maps clap in and moves dirty to end",

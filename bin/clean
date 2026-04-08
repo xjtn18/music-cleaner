@@ -189,6 +189,10 @@ def has_implicit_remix_artist_tag(state):
 
 
 def harmonize_edit_tag(state):
+    if "Instrumental" in state.main_tags:
+        state.edit_kind = None
+        state.edit_tone = None
+        return
     if not state.edit_tone:
         return
     if state.in_house:
@@ -249,6 +253,15 @@ def normalize_artist_segment(artist):
     artist = re.sub(r"(?:^|\s)x(?:\s+x)+(?:\s|$)", " x ", artist)
     artist = normalize_artist_names(artist)
     return normalize_spaces(artist)
+
+
+def normalize_artist_like_tag(text):
+    text = re.sub(r"\bfeat\.?\b", "ft", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s*,\s*", " x ", text)
+    text = re.sub(r"\s*&\s*", " x ", text)
+    text = re.sub(r"(?:^|\s)x(?:\s+x)+(?:\s|$)", " x ", text)
+    text = normalize_artist_names(text)
+    return normalize_spaces(text)
 
 
 def normalize_song_text(song):
@@ -416,7 +429,7 @@ def extract_transition_tags(state, text):
         prefix = split_transition_prefix(match.group(1))
         transition = normalize_range_text(match.group(2))
         if prefix:
-            add_main_tag(state, prefix)
+            add_main_tag(state, normalize_artist_like_tag(prefix))
         add_main_tag(state, transition)
         return True
 
@@ -429,7 +442,7 @@ def extract_transition_tags(state, text):
         prefix = split_transition_prefix(match.group(1))
         transition = normalize_range_text(match.group(3))
         if prefix:
-            add_main_tag(state, prefix)
+            add_main_tag(state, normalize_artist_like_tag(prefix))
         add_main_tag(state, transition)
         return True
 
@@ -438,7 +451,7 @@ def extract_transition_tags(state, text):
         prefix = split_transition_prefix(text[:match.start()])
         transition = normalize_range_text(match.group(1))
         if prefix:
-            add_main_tag(state, prefix)
+            add_main_tag(state, normalize_artist_like_tag(prefix))
         add_main_tag(state, transition)
         return True
 
@@ -455,7 +468,7 @@ def normalize_acapella_tag(state, text):
         prefix = normalize_spaces(match.group(1))
         suffix = normalize_spaces(match.group(2))
         if prefix:
-            add_main_tag(state, prefix)
+            add_main_tag(state, normalize_artist_like_tag(prefix))
         add_main_tag(state, "Acapella In & Out")
         if suffix:
             add_main_tag(state, title_case_phrase(suffix))
@@ -469,7 +482,7 @@ def normalize_acapella_tag(state, text):
             prefix = normalize_spaces(match.group(1))
             suffix = normalize_spaces(match.group(2))
             if prefix:
-                add_main_tag(state, prefix)
+                add_main_tag(state, normalize_artist_like_tag(prefix))
             tag = "Acapella Intro" if not suffix else f"Acapella Intro {title_case_phrase(suffix)}"
             add_main_tag(state, tag)
             if tone:
@@ -486,7 +499,7 @@ def normalize_acapella_tag(state, text):
             prefix = normalize_spaces(match.group(1))
             suffix = normalize_spaces(match.group(2))
             if prefix:
-                add_main_tag(state, prefix)
+                add_main_tag(state, normalize_artist_like_tag(prefix))
             tag = replacement if not suffix else f"{replacement} {title_case_phrase(suffix)}"
             add_main_tag(state, tag)
             if tone:
@@ -514,7 +527,7 @@ def normalize_special_intro_tag(state, text):
             prefix = re.sub(pattern, "", text, flags=re.IGNORECASE)
             prefix = normalize_spaces(prefix)
             if prefix:
-                add_main_tag(state, prefix)
+                add_main_tag(state, normalize_artist_like_tag(prefix))
             add_main_tag(state, replacement)
             if tone:
                 set_edit(state, kind="plain", tone=tone)
@@ -533,7 +546,7 @@ def normalize_special_intro_tag(state, text):
             prefix = re.sub(pattern, "", text, flags=re.IGNORECASE)
             prefix = normalize_spaces(prefix)
             if prefix:
-                add_main_tag(state, prefix)
+                add_main_tag(state, normalize_artist_like_tag(prefix))
             add_main_tag(state, replacement)
             if tone:
                 set_edit(state, kind="plain", tone=tone)
@@ -549,7 +562,7 @@ def normalize_quick_hitter_tag(state, text):
 
     prefix = normalize_spaces(match.group(1))
     if prefix:
-        add_main_tag(state, prefix)
+        add_main_tag(state, normalize_artist_like_tag(prefix))
     set_edit(state, kind="quick_hit")
     return True
 
@@ -561,7 +574,7 @@ def normalize_jump_off_tag(state, text):
 
     prefix = normalize_spaces(match.group(1))
     if prefix:
-        add_main_tag(state, prefix)
+        add_main_tag(state, normalize_artist_like_tag(prefix))
     add_main_tag(state, "Jump Off Edit")
     return True
 
@@ -585,16 +598,23 @@ def normalize_generic_remix_tag(state, text):
     text = re.sub(r"\bblend\b|\bmashup\b", "Mash", text, flags=re.IGNORECASE)
     text = normalize_spaces(text)
 
-    if re.fullmatch(r"segue|mash|remix", text, flags=re.IGNORECASE):
-        add_main_tag(state, text.title() if text.lower() != "remix" else "Remix")
+    if re.fullmatch(r"segue|mash|remix|set\s+edit", text, flags=re.IGNORECASE):
+        if re.fullmatch(r"set\s+edit", text, flags=re.IGNORECASE):
+            add_main_tag(state, "Set Edit")
+        else:
+            add_main_tag(state, text.title() if text.lower() != "remix" else "Remix")
         return True
 
-    match = re.match(r"^(.*?)(?:\s+)(Segue|Mash)$", text, flags=re.IGNORECASE)
+    match = re.match(r"^(.*?)(?:\s+)(Segue|Mash|Remix|Set\s+Edit)$", text, flags=re.IGNORECASE)
     if match:
-        prefix = normalize_spaces(match.group(1))
+        prefix = normalize_artist_like_tag(match.group(1))
         if prefix:
             add_main_tag(state, prefix)
-        add_main_tag(state, match.group(2).title())
+        split_tag = match.group(2)
+        if re.fullmatch(r"set\s+edit", split_tag, flags=re.IGNORECASE):
+            add_main_tag(state, "Set Edit")
+        else:
+            add_main_tag(state, split_tag.title() if split_tag.lower() != "remix" else "Remix")
         return True
 
     add_main_tag(state, text)
@@ -991,16 +1011,19 @@ def build_sort_destination(target_dir, current_root, filename):
     finalize_main_tags(state)
     harmonize_edit_tag(state)
 
-    leaf = classify_sort_leaf(state)
-    if not leaf:
-        return None
-
     if genre == "Hip Hop":
         tool_path = classify_hip_hop_tool_path(state)
         if tool_path == "Instrumental":
             return os.path.join(target_dir, "Hip Hop Tools", tool_path, filename)
         if tool_path:
+            leaf = classify_sort_leaf(state)
+            if not leaf:
+                return None
             return os.path.join(target_dir, "Hip Hop Tools", tool_path, leaf, filename)
+
+    leaf = classify_sort_leaf(state)
+    if not leaf:
+        return None
 
     return os.path.join(target_dir, genre, leaf, filename)
 
