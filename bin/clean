@@ -810,6 +810,28 @@ def clean_filesystem_name(filename, in_house=False):
     return f"{cleaned_stem}{ext}"
 
 
+def write_mp3_title_metadata(file_path, title):
+    if Path(file_path).suffix.lower() != ".mp3":
+        return
+
+    try:
+        from mutagen.easyid3 import EasyID3
+        from mutagen.id3 import ID3NoHeaderError
+    except ImportError as error:
+        raise RuntimeError("MP3 title stamping requires the 'mutagen' package") from error
+
+    try:
+        audio = EasyID3(file_path)
+    except ID3NoHeaderError:
+        audio = EasyID3()
+        audio["title"] = [title]
+        audio.save(file_path)
+        return
+
+    audio["title"] = [title]
+    audio.save()
+
+
 def format_preview_block(original, cleaned, before_label="before", after_label="after"):
     before_text, after_text = build_inline_diff(original, cleaned)
     return "\n".join(
@@ -1058,12 +1080,12 @@ def process_directory(directory, dry_run=True):
                 continue
 
             cleaned = clean_filesystem_name(filename, in_house=in_house)
+            cleaned_stem, _ = os.path.splitext(cleaned)
             if cleaned != filename:
                 occupied_names.discard(filename)
                 occupied_keys.discard(canonical_filename_key(filename))
                 new_path = os.path.join(root, cleaned)
                 original_stem, _ = os.path.splitext(filename)
-                cleaned_stem, _ = os.path.splitext(cleaned)
                 preview_block = format_preview_block(original_stem, cleaned_stem)
                 cleaned_key = canonical_filename_key(cleaned)
                 if cleaned_key in occupied_keys or os.path.exists(new_path):
@@ -1098,6 +1120,7 @@ def process_directory(directory, dry_run=True):
                         })
                         changes_made += 1
                         continue
+                    write_mp3_title_metadata(new_path, cleaned_stem)
                     log_entries.append(preview_block)
                     log_operations.append({
                         "before": os.path.relpath(original_path, directory),
@@ -1106,6 +1129,10 @@ def process_directory(directory, dry_run=True):
                 occupied_names.add(cleaned)
                 occupied_keys.add(cleaned_key)
                 changes_made += 1
+                continue
+
+            if not dry_run:
+                write_mp3_title_metadata(original_path, cleaned_stem)
     log_path = None
     if not dry_run and log_entries:
         log_path = write_ansi_log(directory, log_entries, log_operations, changes_made)
