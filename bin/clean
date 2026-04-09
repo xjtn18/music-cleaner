@@ -70,7 +70,7 @@ DELETED_SENTINEL = "[deleted]"
 SCRIPT_PATH = Path(__file__).resolve()
 BIN_DIR = SCRIPT_PATH.parent
 REPO_ROOT = BIN_DIR.parent
-SORT_FOLDER_COLORS = [COLOR_CYAN, COLOR_GREEN, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_BRIGHT_CYAN]
+SORT_FOLDER_COLORS = [COLOR_CYAN, COLOR_MAGENTA, COLOR_YELLOW, COLOR_BLUE, COLOR_MAGENTA, COLOR_BRIGHT_CYAN]
 
 
 @dataclass
@@ -834,29 +834,29 @@ def write_mp3_title_metadata(file_path, title):
 
 def format_preview_block(original, cleaned, before_label="before", after_label="after"):
     before_text, after_text = build_inline_diff(original, cleaned)
+    before_prefix = f"{before_label}:".rjust(7)
+    after_prefix = f"{after_label}:".rjust(7)
     return "\n".join(
         [
-            f"  {COLOR_RED}{before_label}:{COLOR_RESET} {before_text}",
-            f"  {COLOR_GREEN}{after_label}: {COLOR_RESET} {after_text}",
+            f"  {COLOR_RED}{before_prefix}{COLOR_RESET} {before_text}",
+            f"  {COLOR_GREEN}{after_prefix}{COLOR_RESET} {after_text}",
         ]
     )
 
 
 def format_delete_preview_block(original, reason):
+    before_prefix = "before:".rjust(7)
+    after_prefix = "after:".rjust(7)
     return "\n".join(
         [
-            f"  {COLOR_RED}before:{COLOR_RESET} {original}",
-            f"  {COLOR_GREEN}after: {COLOR_RESET} {COLOR_BRIGHT_CYAN}{DELETED_SENTINEL} * {reason}{COLOR_RESET}",
+            f"  {COLOR_RED}{before_prefix}{COLOR_RESET} {original}",
+            f"  {COLOR_GREEN}{after_prefix}{COLOR_RESET} {COLOR_BRIGHT_CYAN}{DELETED_SENTINEL} * {reason}{COLOR_RESET}",
         ]
     )
 
 
 def format_move_destination(destination):
-    return f"  {COLOR_CYAN}move:{COLOR_RESET} {colorize_sort_path(destination)}"
-
-
-def format_cleaned_filename(cleaned):
-    return f"  {COLOR_GREEN}clean:{COLOR_RESET} {cleaned}"
+    return f"  {COLOR_GREEN}{'to:'.rjust(7)}{COLOR_RESET} {colorize_sort_path(destination)}"
 
 
 def colorize_sort_path(path):
@@ -874,10 +874,9 @@ def colorize_sort_path(path):
     return os.path.join(*colored_parts)
 
 
-def format_sort_preview_block(original, cleaned, destination):
+def format_sort_preview_block(original, destination):
     return "\n".join([
-        f"  {COLOR_RED}file:{COLOR_RESET} {colorize_sort_path(original)}",
-        format_cleaned_filename(cleaned),
+        f"  {COLOR_RED}{'from:'.rjust(7)}{COLOR_RESET} {colorize_sort_path(original)}",
         format_move_destination(destination),
     ])
 
@@ -1158,7 +1157,7 @@ def process_directory_sort(directory, dry_run=True):
 
             original_rel = os.path.relpath(original_path, directory)
             destination_rel = os.path.relpath(destination_path, directory)
-            preview_block = format_sort_preview_block(original_rel, cleaned_filename, destination_rel)
+            preview_block = format_sort_preview_block(original_rel, destination_rel)
 
             if dry_run:
                 print(preview_block)
