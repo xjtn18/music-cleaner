@@ -1,7 +1,0 @@
-Please implement the following things:
-
-- The script currently converts connector characters (& or ,) into 'x' for the artist name (first thing in the filename), however, these could also exist in the remix artist tag. However you currently denote something as an artist tag, please make sure to apply the connector conversion there as well. Also add a relevant test case to test this.
-
-- Ensure that filenames containing an "Instrumental" tag never have a final edit tag
-
-- There is currently a bug with isntrumentals. Every other tagged filename in Hip Hop was successfully moved to its corresponding matching subfolder inside of Hip Hop Tools, except for instrumentals -> they remain unsorted inside of the Hip Hop folder. Please double check that the script handles that (they should be moved to "Hip Hop Tools / Instrumental")
