@@ -103,9 +103,13 @@ Explicit hard-coded formatting rules:
 
 - [Inferred] commas and ampersands in the artist segment should normalize to ` x `, while existing `ft` should be preserved.
 
+- [Inferred] In tag matter after the song segment, commas and ampersands should normalize to ` x `, while existing `ft` should be preserved, even if the vendor/remix artist does not get cleanly split away from the rest of the tag phrase.
+
 - [Inferred] `Extended Mix` should normalize to `(Ext)`.
 
 - [Inferred] `Inst` should normalize to `(Instrumental)`.
+
+- [Inferred] If a cleaned filename contains `(Instrumental)`, it should never also contain a final clean/dirty edit tag.
 
 - [Inferred] `Jump Off` should normalize to `(Jump Off Edit)`.
 

@@ -229,6 +229,11 @@
     "expected": "Tinashe - Nasty (Akon x Ne-Yo x Fabolous) (Acapella Out) (Clean)"
   },
   {
+    "name": "normalizes connectors in unsplit custom tag matter",
+    "input": "Tinashe - Nasty (Akon, Ne-Yo & Fabolous Laser Edit) (Clean Extended)",
+    "expected": "Tinashe - Nasty (Akon x Ne-Yo x Fabolous Laser Edit) (Intro - Clean)"
+  },
+  {
     "name": "instrumental suppresses final edit tag",
     "input": "Berner & Babyface Ray - Reminiscing (Instrumental) Dirty 3A 98",
     "expected": "Berner x Babyface Ray - Reminiscing (Instrumental)"

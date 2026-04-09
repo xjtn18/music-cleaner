@@ -617,7 +617,7 @@ def normalize_generic_remix_tag(state, text):
             add_main_tag(state, split_tag.title() if split_tag.lower() != "remix" else "Remix")
         return True
 
-    add_main_tag(state, text)
+    add_main_tag(state, normalize_artist_like_tag(text))
     return True
 
 
@@ -673,7 +673,7 @@ def consume_free_text(state, text):
         add_main_tag(state, transition)
         return
 
-    add_main_tag(state, text)
+    add_main_tag(state, normalize_artist_like_tag(text))
 
 
 def derive_state(filename, in_house=False):
@@ -1119,7 +1119,6 @@ def process_directory(directory, dry_run=True):
                         })
                         changes_made += 1
                         continue
-                    write_mp3_title_metadata(new_path, cleaned_stem)
                     log_entries.append(preview_block)
                     log_operations.append({
                         "before": os.path.relpath(original_path, directory),
@@ -1130,12 +1129,24 @@ def process_directory(directory, dry_run=True):
                 changes_made += 1
                 continue
 
-            if not dry_run:
-                write_mp3_title_metadata(original_path, cleaned_stem)
     log_path = None
     if not dry_run and log_entries:
         log_path = write_ansi_log(directory, log_entries, log_operations, changes_made)
     return changes_made, log_path
+
+
+def process_directory_tags(directory):
+    changes_made = 0
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            original_path = os.path.join(root, filename)
+            in_house = is_house_path(original_path)
+            cleaned_stem, ext = os.path.splitext(clean_filesystem_name(filename, in_house=in_house))
+            if ext.lower() != ".mp3":
+                continue
+            write_mp3_title_metadata(original_path, cleaned_stem)
+            changes_made += 1
+    return changes_made, None
 
 
 def process_directory_sort(directory, dry_run=True):
@@ -1285,18 +1296,29 @@ def is_unsafe_target_dir(target_dir):
     return resolved_target in {cwd, parent}
 
 
+def fail_cli(message):
+    print(f"Error: {message}")
+    sys.exit(1)
+
+
 def main():
     if len(sys.argv) > 1 and sys.argv[1] in ("--test-diff", "-d"):
+        if len(sys.argv) > 3:
+            fail_cli("--test-diff accepts at most one optional test file path")
         test_file = sys.argv[2] if len(sys.argv) > 2 else str(REPO_ROOT / "tests.json")
         show_test_diffs(test_file)
         return
 
-    if len(sys.argv) > 1 and sys.argv[1] in ("--test", "-t"):
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        if len(sys.argv) > 3:
+            fail_cli("--test accepts at most one optional test file path")
         test_file = sys.argv[2] if len(sys.argv) > 2 else str(REPO_ROOT / "tests.json")
         success = run_tests(test_file)
         sys.exit(0 if success else 1)
 
     if len(sys.argv) > 1 and sys.argv[1] in ("--revert", "-v"):
+        if len(sys.argv) > 3:
+            fail_cli("--revert accepts at most one optional log path")
         log_file = None
         if len(sys.argv) > 2:
             log_file = sys.argv[2]
@@ -1317,18 +1339,38 @@ def main():
 
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  clean --test|-t [file]          Run tests")
+        print("  clean --test [file]             Run tests")
         print("  clean --test-diff|-d [file]     Preview input vs expected test diffs")
         print("  clean <dir>                     Dry run (preview changes)")
         print("  clean <dir> --run|-r            Actually rename files")
+        print("  clean <dir> --tag|-t            Actually write MP3 title tags")
         print("  clean <dir> --sort|-s           Dry run sort into folders")
         print("  clean <dir> --sort|-s --run|-r  Actually sort into folders")
         print("  clean --revert|-v [log]         Revert from log or latest log")
         sys.exit(1)
 
+    if sys.argv[1].startswith("-"):
+        fail_cli(f"unknown command or flag: {sys.argv[1]}")
+
     target_dir = sys.argv[1]
-    dry_run = "--run" not in sys.argv and "-r" not in sys.argv
-    sort_mode = "--sort" in sys.argv or "-s" in sys.argv
+    raw_flags = sys.argv[2:]
+    valid_flags = {"--run", "-r", "--sort", "-s", "--tag", "-t"}
+    invalid_flags = [flag for flag in raw_flags if flag not in valid_flags]
+    if invalid_flags:
+        fail_cli(f"unknown flag(s): {' '.join(invalid_flags)}")
+
+    run_mode = "--run" in raw_flags or "-r" in raw_flags
+    tag_mode = "--tag" in raw_flags or "-t" in raw_flags
+    sort_mode = "--sort" in raw_flags or "-s" in raw_flags
+    dry_run = not run_mode and not tag_mode
+
+    selected_operations = []
+    if sort_mode:
+        selected_operations.append("sort")
+    if tag_mode:
+        selected_operations.append("tag")
+    if len(selected_operations) > 1:
+        fail_cli("multiple operation flags provided; choose only one of --sort/-s or --tag/-t")
 
     if is_unsafe_target_dir(target_dir):
         print("Error: refusing to run against '.' , '..', or paths that resolve to the current or parent directory.")
@@ -1339,10 +1381,17 @@ def main():
         print(f"{COLOR_CYAN}DRY RUN{COLOR_RESET} {COLOR_DIM}No changes will be made. Use --run to apply changes.{COLOR_RESET}")
         print()
     else:
-        action = "Sorting files in" if sort_mode else "Renaming files in"
+        if tag_mode:
+            action = "Writing MP3 title tags in"
+        elif sort_mode:
+            action = "Sorting files in"
+        else:
+            action = "Renaming files in"
         print(f"{COLOR_CYAN}RUN{COLOR_RESET} {COLOR_DIM}{action} {target_dir}{COLOR_RESET}")
 
-    if sort_mode:
+    if tag_mode:
+        changes, log_path = process_directory_tags(target_dir)
+    elif sort_mode:
         changes, log_path = process_directory_sort(target_dir, dry_run=dry_run)
     else:
         changes, log_path = process_directory(target_dir, dry_run=dry_run)
