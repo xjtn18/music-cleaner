@@ -95,12 +95,12 @@
   {
     "name": "splits transition vendor tag and quick hit clean edit",
     "input": "50 Cent ft Governor - Do You Think About Me (Rob Rivera Transition 126-94) (Clean Short Edit)",
-    "expected": "50 Cent ft Governor - Do You Think About Me (Rob Rivera) (126 - 94 Transition) (Quick Hit Clean)"
+    "expected": "50 Cent ft Governor - Do You Think About Me (Rob Rivera) (126-94 Transition) (Quick Hit Clean)"
   },
   {
     "name": "normalizes trans shorthand and numeric spacing",
     "input": "A Boogie Wit Da Hoodie ft Kyle Richh & Zeddy Will - PGD (Club Killers 100-128 Trans) Clean 8A",
-    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (100 - 128 Transition) (Clean)"
+    "expected": "A Boogie Wit Da Hoodie ft Kyle Richh x Zeddy Will - PGD (100-128 Transition) (Clean)"
   },
   {
     "name": "applies explicit artist rename for Ty Dolla Sign",
@@ -171,7 +171,7 @@
   {
     "name": "handles three digit transition range with quick hit clean",
     "input": "Cheyenne Giles, Knock2 & John Newman - LOVE ME SOME SUGAR (DJ Nasa 105-130 Transition) (Clean Short Edit)",
-    "expected": "Cheyenne Giles x Knock2 x John Newman - LOVE ME SOME SUGAR (DJ Nasa) (105 - 130 Transition) (Quick Hit Clean)"
+    "expected": "Cheyenne Giles x Knock2 x John Newman - LOVE ME SOME SUGAR (DJ Nasa) (105-130 Transition) (Quick Hit Clean)"
   },
   {
     "name": "preserves custom remix tag and maps short edit to quick hit",
@@ -266,12 +266,12 @@
   {
     "name": "removes wordplay from transition segue tag",
     "input": "DaBaby vs French Montana & Rick Ross - POP DAT THANG vs Pop That (DJ OD 138-70 Wordplay Trans) Dirty 8A",
-    "expected": "DaBaby vs French Montana x Rick Ross - POP DAT THANG vs Pop That (DJ OD) (138 - 70 Transition) (Segue) (Dirty)"
+    "expected": "DaBaby vs French Montana x Rick Ross - POP DAT THANG vs Pop That (DJ OD) (138-70 Transition) (Segue) (Dirty)"
   },
   {
     "name": "converts word play edit to transition",
     "input": "Don Toliver vs Megan Thee Stallion - Body (DJ Nasa 94-73 Word Play Edit) (Clean Extended)",
-    "expected": "Don Toliver vs Megan Thee Stallion - Body (DJ Nasa) (94 - 73 Transition) (Segue) (Clean)"
+    "expected": "Don Toliver vs Megan Thee Stallion - Body (DJ Nasa) (94-73 Transition) (Segue) (Clean)"
   },
   {
     "name": "splits vendor from slam edit and keeps clean tone",
@@ -296,7 +296,7 @@
   {
     "name": "promotes dashed numbers to transition and preserves hype in",
     "input": "Lil Uzi Vert vs John Summit - Just Wanna Rock When The LIGHTS GO OUT (Smassh VIP Flip 150-144) Dirty Hype In 2A",
-    "expected": "Lil Uzi Vert vs John Summit - Just Wanna Rock When The LIGHTS GO OUT (Smassh) (150 - 144 Transition) (Hype In) (Segue) (Dirty)"
+    "expected": "Lil Uzi Vert vs John Summit - Just Wanna Rock When The LIGHTS GO OUT (Smassh) (150-144 Transition) (Hype In) (Segue) (Dirty)"
   },
   {
     "name": "splits vendor from slam edit without dropping clean tone",
@@ -306,7 +306,7 @@
   {
     "name": "removes x to y phrase before transition range",
     "input": "Rob49 vs Valentino Khan - WTHELLY (DJ Nasa Hip Hop To House 84-130 Edit) (Clean Extended)",
-    "expected": "Rob49 vs Valentino Khan - WTHELLY (DJ Nasa) (84 - 130 Transition) (Segue) (Clean)"
+    "expected": "Rob49 vs Valentino Khan - WTHELLY (DJ Nasa) (84-130 Transition) (Segue) (Clean)"
   },
   {
     "name": "club edit forces intro dirty final tag",

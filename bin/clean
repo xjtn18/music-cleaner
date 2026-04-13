@@ -392,7 +392,7 @@ def normalize_range_text(range_text):
     match = re.search(r"(\d{2,3})\s*-\s*(\d{2,3})", range_text)
     if not match:
         return None
-    return f"{match.group(1)} - {match.group(2)} Transition"
+    return f"{match.group(1)}-{match.group(2)} Transition"
 
 
 def split_prefix_and_suffix(text, suffix_pattern):
@@ -625,8 +625,6 @@ def normalize_parenthetical_chunk(state, chunk):
     text = remove_noise_tokens(remove_wordplay_tokens(remove_kbpm_from_text(strip_outer_parens(chunk))))
     if not text:
         return
-
-    text = re.sub(r"(\d)\s*-\s*(\d)", r"\1 - \2", text)
 
     if apply_edit_from_text(state, text):
         return
