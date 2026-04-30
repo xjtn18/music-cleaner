@@ -1138,11 +1138,10 @@ def process_directory_tags(directory):
     for root, _, files in os.walk(directory):
         for filename in files:
             original_path = os.path.join(root, filename)
-            in_house = is_house_path(original_path)
-            cleaned_stem, ext = os.path.splitext(clean_filesystem_name(filename, in_house=in_house))
+            stem, ext = os.path.splitext(filename)
             if ext.lower() != ".mp3":
                 continue
-            write_mp3_title_metadata(original_path, cleaned_stem)
+            write_mp3_title_metadata(original_path, stem)
             changes_made += 1
     return changes_made, None
 
@@ -1157,9 +1156,11 @@ def process_directory_sort(directory, dry_run=True):
 
         for filename in files:
             original_path = os.path.join(root, filename)
-            in_house = is_house_path(original_path)
-            cleaned_filename = clean_filesystem_name(filename, in_house=in_house)
-            destination_filename = cleaned_filename if dry_run else filename
+            if dry_run:
+                in_house = is_house_path(original_path)
+                destination_filename = clean_filesystem_name(filename, in_house=in_house)
+            else:
+                destination_filename = filename
             destination_path = build_sort_destination(directory, root, destination_filename)
             if not destination_path or os.path.normpath(destination_path) == os.path.normpath(original_path):
                 continue
